@@ -4,7 +4,7 @@ A modern, zero-dependency wait and timing utility toolkit for JavaScript and Typ
 Supports `AbortSignal`, timeouts, retries, and polling — all with first-class TypeScript types.
 
 [![Version](https://img.shields.io/npm/v/wait-utils.svg)](https://www.npmjs.com/package/wait-utils)
-[![Maintenance](https://img.shields.io/maintenance/yes/2024.svg)](https://github.com/havelessbemore/wait-utils/graphs/commit-activity)
+[![Maintenance](https://img.shields.io/maintenance/yes/2025)](https://github.com/havelessbemore/wait-utils/graphs/commit-activity)
 [![License](https://img.shields.io/github/license/havelessbemore/wait-utils.svg)](https://github.com/havelessbemore/wait-utils/blob/master/LICENSE)
 [![codecov](https://codecov.io/gh/havelessbemore/wait-utils/graph/badge.svg?token=F362G7C9U0)](https://codecov.io/gh/havelessbemore/wait-utils)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/wait-utils)
