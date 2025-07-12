@@ -11,19 +11,19 @@ describe(AbortError.name, () => {
     expect(err.name).toBe("AbortError");
   });
 
-  test("sets the message if provided", () => {
-    const msg = "test";
-    const err = new AbortError(msg);
-    expect(err.message).toBe(msg);
+  test("prototype is correctly set", () => {
+    const err = new AbortError();
+    expect(Object.getPrototypeOf(err)).toBe(AbortError.prototype);
   });
 
-  test("default used if message not provided", () => {
+  test("sets the default message if none provided", () => {
     const err = new AbortError();
     expect(err.message).toBe("This operation was aborted");
   });
 
-  test("prototype is correctly set", () => {
-    const err = new AbortError();
-    expect(Object.getPrototypeOf(err)).toBe(AbortError.prototype);
+  test("sets the provided message", () => {
+    const msg = "test";
+    const err = new AbortError(msg);
+    expect(err.message).toBe(msg);
   });
 });

@@ -8,22 +8,22 @@ describe(RetryError.name, () => {
 
   test("has correct name", () => {
     const err = new RetryError();
-    expect(err.name).toBe(RetryError.name);
-  });
-
-  test("sets the message if provided", () => {
-    const msg = "This operation was aborted";
-    const err = new RetryError(msg);
-    expect(err.message).toBe(msg);
-  });
-
-  test("message defaults to empty string if not provided", () => {
-    const err = new RetryError();
-    expect(err.message).toBe("");
+    expect(err.name).toBe("RetryError");
   });
 
   test("prototype is correctly set", () => {
     const err = new RetryError();
     expect(Object.getPrototypeOf(err)).toBe(RetryError.prototype);
+  });
+
+  test("sets the default message if none provided", () => {
+    const err = new RetryError();
+    expect(err.message).toBe("");
+  });
+
+  test("sets the provided message", () => {
+    const msg = "test";
+    const err = new RetryError(msg);
+    expect(err.message).toBe(msg);
   });
 });
