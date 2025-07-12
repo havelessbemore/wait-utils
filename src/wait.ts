@@ -11,30 +11,37 @@ import { throwIfAborted } from "./utils";
  * @returns A promise that resolves after the delay, or rejects with
  *          `AbortError` if cancelled.
  */
-export async function wait(delay: number, signal?: AbortSignal): Promise<void> {
+export async function wait(
+  delay?: number,
+  signal?: AbortSignal,
+): Promise<void> {
   throwIfAborted(signal);
 
-  if (delay <= 0) {
+  if (delay == null || delay <= 0) {
     return;
   }
 
-  return new Promise<void>((resolve, reject) => {
-    const cleanup = () => {
-      clearTimeout(timeoutId);
-      signal?.removeEventListener("abort", onReject);
-    };
+  if (signal == null) {
+    return new Promise((resolve) => setTimeout(resolve, delay));
+  }
 
-    const onReject = () => {
-      cleanup();
-      reject(signal?.reason);
+  return new Promise<void>((resolve, reject) => {
+    const onAbort = () => {
+      clearTimeout(timeoutId);
+      reject(signal.reason);
     };
 
     const onResolve = () => {
-      cleanup();
+      signal.removeEventListener("abort", onAbort);
       resolve();
     };
 
-    signal?.addEventListener("abort", onReject, { once: true });
     const timeoutId = setTimeout(onResolve, delay);
+
+    if (signal.aborted) {
+      onAbort();
+    } else {
+      signal.addEventListener("abort", onAbort, { once: true });
+    }
   });
 }

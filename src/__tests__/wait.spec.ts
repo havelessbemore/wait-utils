@@ -1,136 +1,120 @@
 import { wait } from "src/wait";
+import { throwIfAborted } from "src/utils";
+
+jest.mock("src/utils", () => ({
+  throwIfAborted: jest.fn(),
+}));
 
 describe("wait", () => {
   beforeAll(() => {
     jest.useFakeTimers();
+    jest.spyOn(global, "setTimeout");
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
     jest.clearAllMocks();
+    jest.clearAllTimers();
   });
 
-  afterAll(() => {
-    jest.useRealTimers();
-  });
+  // Delay
 
-  it("resolves after the specified delay", async () => {
-    const promise = wait(1000);
-    jest.advanceTimersByTime(999);
-    let resolved = false;
-    promise.then(() => {
-      resolved = true;
-    });
-
-    await Promise.resolve(); // allow any microtasks to run
-    expect(resolved).toBe(false);
-
-    jest.advanceTimersByTime(1);
-    await expect(promise).resolves.toBeUndefined();
+  it("resolves immediately if delay is undefined", async () => {
+    await expect(wait(undefined)).resolves.toBeUndefined();
+    expect(setTimeout).not.toHaveBeenCalled();
   });
 
   it("resolves immediately if delay is 0", async () => {
     await expect(wait(0)).resolves.toBeUndefined();
+    expect(setTimeout).not.toHaveBeenCalled();
   });
 
   it("resolves immediately if delay is negative", async () => {
-    await expect(wait(-100)).resolves.toBeUndefined();
+    await expect(wait(-10)).resolves.toBeUndefined();
+    expect(setTimeout).not.toHaveBeenCalled();
   });
 
-  it("rejects immediately if the signal is already aborted", async () => {
-    const controller = new AbortController();
-    controller.abort();
-    try {
-      await wait(1000, controller.signal);
-      throw new Error("Expected wait to reject");
-    } catch (err) {
-      expect(err).toBeInstanceOf(DOMException);
-      expect((err as DOMException).name).toBe("AbortError");
-    }
-  });
+  it("returns a promise that resolves after delay if no signal", async () => {
+    const promise = wait(100);
+    expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 100);
 
-  it("rejects immediately with signal.reason if provided", async () => {
-    const controller = new AbortController();
-    const customReason = new Error("custom reason");
-    controller.abort(customReason);
-
-    await expect(wait(1000, controller.signal)).rejects.toBe(customReason);
-  });
-
-  it("rejects if aborted during the wait", async () => {
-    const controller = new AbortController();
-    const promise = wait(1000, controller.signal);
-
-    jest.advanceTimersByTime(500);
-    controller.abort();
-
-    try {
-      await promise;
-      throw new Error("Expected wait to reject");
-    } catch (err) {
-      expect(err).toBeInstanceOf(DOMException);
-      expect((err as DOMException).name).toBe("AbortError");
-    }
-  });
-
-  it("rejects with custom reason if aborted during the wait", async () => {
-    const controller = new AbortController();
-    const reason = new Error("aborted with reason");
-    const promise = wait(1000, controller.signal);
-
-    controller.abort(reason);
-    await expect(promise).rejects.toBe(reason);
-  });
-
-  it("removes abort listener and clears timeout on resolve", async () => {
-    const controller = new AbortController();
-    const removeEventListenerSpy = jest.spyOn(
-      controller.signal,
-      "removeEventListener",
-    );
-
-    const promise = wait(1000, controller.signal);
-    jest.advanceTimersByTime(1000);
-    await promise;
-
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      "abort",
-      expect.any(Function),
-    );
-  });
-
-  it("removes abort listener and clears timeout on reject", async () => {
-    const controller = new AbortController();
-    const removeEventListenerSpy = jest.spyOn(
-      controller.signal,
-      "removeEventListener",
-    );
-
-    const promise = wait(1000, controller.signal);
-    controller.abort();
-
-    try {
-      await promise;
-      throw new Error("Expected wait to reject");
-    } catch (err) {
-      expect(err).toBeInstanceOf(DOMException);
-      expect((err as DOMException).name).toBe("AbortError");
-      expect(removeEventListenerSpy).toHaveBeenCalledWith(
-        "abort",
-        expect.any(Function),
-      );
-    }
-  });
-
-  it("does not add an abort listener if signal is not provided", async () => {
-    const signal: AbortSignal | undefined = undefined;
-    const promise = wait(500, signal);
-
-    jest.advanceTimersByTime(500);
+    jest.advanceTimersByTime(100);
     await expect(promise).resolves.toBeUndefined();
   });
 
-  it("does not reject or resolve twice if abort and timeout race", async () => {
+  // Signal
+
+  it("calls throwIfAborted with the signal", async () => {
+    const signal = new AbortController().signal;
+    wait(100, signal);
+    expect(throwIfAborted).toHaveBeenCalledWith(signal);
+  });
+
+  it("rejects immediately if signal is already aborted", async () => {
+    const controller = new AbortController();
+    controller.abort(new Error("aborted"));
+    await expect(wait(100, controller.signal)).rejects.toThrow("aborted");
+    expect(throwIfAborted).toHaveBeenCalledWith(controller.signal);
+  });
+
+  it("rejects if signal aborts during the wait", async () => {
+    const controller = new AbortController();
+    const promise = wait(1000, controller.signal);
+
+    expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 1000);
+
+    controller.abort(new Error("aborted during wait"));
+    jest.runOnlyPendingTimers();
+    await expect(promise).rejects.toThrow("aborted during wait");
+  });
+
+  it("resolves after delay if signal does not abort", async () => {
+    const controller = new AbortController();
+    const promise = wait(100, controller.signal);
+
+    jest.advanceTimersByTime(100);
+    await expect(promise).resolves.toBeUndefined();
+  });
+
+  // Cleanup
+
+  it("cleans up event listener on resolve", async () => {
+    const controller = new AbortController();
+    const spyRemoveListener = jest.spyOn(
+      controller.signal,
+      "removeEventListener",
+    );
+    const promise = wait(100, controller.signal);
+
+    jest.advanceTimersByTime(100);
+    await promise;
+
+    expect(spyRemoveListener).toHaveBeenCalledTimes(1);
+    expect(spyRemoveListener).toHaveBeenCalledWith(
+      "abort",
+      expect.any(Function),
+    );
+    spyRemoveListener.mockRestore();
+  });
+
+  test("cleans up event listener on abort via `{ once: true }`", async () => {
+    const controller = new AbortController();
+    const addListenerSpy = jest.spyOn(controller.signal, "addEventListener");
+
+    const promise = wait(100, controller.signal);
+
+    expect(addListenerSpy).toHaveBeenCalledWith(
+      "abort",
+      expect.any(Function),
+      expect.objectContaining({ once: true }),
+    );
+
+    controller.abort(new Error("aborted"));
+    jest.runOnlyPendingTimers();
+    await expect(promise).rejects.toThrow("aborted");
+    addListenerSpy.mockRestore();
+  });
+
+  it("does not reject AND resolve if aborted and timed out", async () => {
     const controller = new AbortController();
     const spy = jest.fn();
 
@@ -141,8 +125,32 @@ describe("wait", () => {
     controller.abort();
     jest.advanceTimersByTime(1000);
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    await promise.catch(() => {});
+    try {
+      await promise;
+    } catch (_) {
+      // pass
+    }
+
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not resolve AND reject if timed out and aborted", async () => {
+    const controller = new AbortController();
+    const spy = jest.fn();
+
+    const promise = wait(1000, controller.signal)
+      .then(() => spy("resolved"))
+      .catch(() => spy("rejected"));
+
+    jest.advanceTimersByTime(1000);
+    controller.abort();
+
+    try {
+      await promise;
+    } catch (_) {
+      // pass
+    }
+
     expect(spy).toHaveBeenCalledTimes(1);
   });
 });
