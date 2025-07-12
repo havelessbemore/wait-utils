@@ -3,13 +3,14 @@ import { throwIfAborted } from "./utils";
 /**
  * Waits for the specified number of milliseconds.
  *
- * Supports cancellation via `AbortSignal`.
+ * Supports cancellation via an `AbortSignal`.
  *
  * @param delay - The number of milliseconds to wait.
- * @param signal - Optional abort signal to cancel the wait early.
+ * @param signal - Optional `AbortSignal` to cancel the wait early.
  *
- * @returns A promise that resolves after the delay, or rejects with
- *          `AbortError` if cancelled.
+ * @returns A promise that:
+ * - resolves after the delay
+ * - rejects with the `AbortSignal.reason` if cancelled before the delay
  */
 export async function wait(
   delay?: number,

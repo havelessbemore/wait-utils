@@ -6,6 +6,10 @@ jest.mock("src/utils", () => ({
 }));
 
 describe("wait", () => {
+  const mockThrowIfAborted = throwIfAborted as jest.MockedFunction<
+    typeof throwIfAborted
+  >;
+
   beforeAll(() => {
     jest.useFakeTimers();
     jest.spyOn(global, "setTimeout");
@@ -14,6 +18,10 @@ describe("wait", () => {
   afterEach(() => {
     jest.clearAllMocks();
     jest.clearAllTimers();
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
   });
 
   // Delay
@@ -33,27 +41,28 @@ describe("wait", () => {
     expect(setTimeout).not.toHaveBeenCalled();
   });
 
-  it("returns a promise that resolves after delay if no signal", async () => {
+  it("resolves if delay is NaN", async () => {
+    const promise = wait(NaN);
+    jest.runOnlyPendingTimers();
+    expect(setTimeout).toHaveBeenCalled();
+    await expect(promise).resolves.toBeUndefined();
+  });
+
+  it("resolves after delay", async () => {
     const promise = wait(100);
     expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 100);
-
     jest.advanceTimersByTime(100);
+    await Promise.resolve(); // Flush microtasks before abort triggers
     await expect(promise).resolves.toBeUndefined();
   });
 
   // Signal
 
-  it("calls throwIfAborted with the signal", async () => {
-    const signal = new AbortController().signal;
-    wait(100, signal);
-    expect(throwIfAborted).toHaveBeenCalledWith(signal);
-  });
-
   it("rejects immediately if signal is already aborted", async () => {
     const controller = new AbortController();
     controller.abort(new Error("aborted"));
     await expect(wait(100, controller.signal)).rejects.toThrow("aborted");
-    expect(throwIfAborted).toHaveBeenCalledWith(controller.signal);
+    expect(mockThrowIfAborted).toHaveBeenCalledWith(controller.signal);
   });
 
   it("rejects if signal aborts during the wait", async () => {
@@ -70,8 +79,8 @@ describe("wait", () => {
   it("resolves after delay if signal does not abort", async () => {
     const controller = new AbortController();
     const promise = wait(100, controller.signal);
-
     jest.advanceTimersByTime(100);
+    await Promise.resolve(); // Flush microtasks before abort triggers
     await expect(promise).resolves.toBeUndefined();
   });
 
@@ -86,6 +95,7 @@ describe("wait", () => {
     const promise = wait(100, controller.signal);
 
     jest.advanceTimersByTime(100);
+    await Promise.resolve(); // Flush microtasks before abort triggers
     await promise;
 
     expect(spyRemoveListener).toHaveBeenCalledTimes(1);
@@ -96,7 +106,7 @@ describe("wait", () => {
     spyRemoveListener.mockRestore();
   });
 
-  test("cleans up event listener on abort via `{ once: true }`", async () => {
+  test("cleans up event listener on abort", async () => {
     const controller = new AbortController();
     const addListenerSpy = jest.spyOn(controller.signal, "addEventListener");
 
@@ -124,6 +134,7 @@ describe("wait", () => {
 
     controller.abort();
     jest.advanceTimersByTime(1000);
+    await Promise.resolve(); // Flush microtasks before abort triggers
 
     try {
       await promise;
@@ -143,6 +154,7 @@ describe("wait", () => {
       .catch(() => spy("rejected"));
 
     jest.advanceTimersByTime(1000);
+    await Promise.resolve(); // Flush microtasks before abort triggers
     controller.abort();
 
     try {
