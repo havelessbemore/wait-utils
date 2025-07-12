@@ -62,7 +62,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=14.17"
+    "node": ">=18.14 <19 || >=19.4"
   },
   "scripts": {
     "build": "tsup",
