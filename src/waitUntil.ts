@@ -10,8 +10,9 @@ import { wait } from "./wait";
  * @param timestamp - Target timestamp (in milliseconds) relative to `performance.now()`.
  * @param signal - Optional abort signal to cancel the wait.
  *
- * @returns A promise that resolves when the current time is at or beyond `ts`,
- *          or rejects with `AbortError` if cancelled.
+ * @returns A promise that:
+ * - resolves when the current time is at or beyond `ts`
+ * - rejects with `AbortError` if cancelled.
  */
 export async function waitUntil(
   timestamp: number,
