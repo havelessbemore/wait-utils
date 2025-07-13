@@ -78,7 +78,7 @@ try {
 }
 ```
 
-### `wait(delay, signal?)`
+### `wait(delay?, signal?)`
 
 Waits for a given number of milliseconds, unless cancelled by an `AbortSignal`.
 
