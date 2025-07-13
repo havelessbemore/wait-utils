@@ -27,22 +27,36 @@ export async function wait(
   }
 
   return new Promise<void>((resolve, reject) => {
-    const onAbort = () => {
+    let isCompleted = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+    const cleanup = () => {
       clearTimeout(timeoutId);
-      reject(signal.reason);
+      signal.removeEventListener("abort", onAbort);
+    };
+
+    const onAbort = () => {
+      if (!isCompleted) {
+        isCompleted = true;
+        cleanup();
+        reject(signal.reason);
+      }
     };
 
     const onResolve = () => {
-      signal.removeEventListener("abort", onAbort);
-      resolve();
+      if (!isCompleted) {
+        isCompleted = true;
+        cleanup();
+        resolve();
+      }
     };
-
-    const timeoutId = setTimeout(onResolve, delay);
 
     if (signal.aborted) {
       onAbort();
-    } else {
-      signal.addEventListener("abort", onAbort, { once: true });
+      return;
     }
+
+    timeoutId = setTimeout(onResolve, delay);
+    signal.addEventListener("abort", onAbort, { once: true });
   });
 }
