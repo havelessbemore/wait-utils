@@ -1,4 +1,4 @@
-import { TimeoutError } from "./timeoutError";
+import { TimeoutError } from "./errors/timeoutError";
 import { wait } from "./wait";
 
 /**

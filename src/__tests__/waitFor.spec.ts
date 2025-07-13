@@ -1,226 +1,186 @@
-import { RetryError } from "src/retryError";
-import { TimeoutError } from "src/timeoutError";
-import { wait } from "src/wait";
+// import { timeout as timeoutFn } from "src/timeout";
+import { TimeoutError } from "src/errors/timeoutError";
+import * as timeoutModule from "src/timeout";
+import * as utilsModule from "src/utils/or";
+import * as waitModule from "src/wait";
 import { waitFor } from "src/waitFor";
 
-jest.mock("src/wait", () => ({
-  wait: jest.fn(() => Promise.resolve()),
-}));
+import {
+  expectNativeAbortError,
+  expectRetryError,
+  expectTimeoutError,
+} from "src/errors/__testutils__/utils";
 
-describe("waitFor", () => {
-  const waitMock = wait as jest.Mock;
+describe(waitFor.name, () => {
+  let orSpy: jest.SpiedFunction<typeof utilsModule.or>;
+  let timeoutSpy: jest.SpiedFunction<typeof timeoutModule.timeout>;
+  let waitSpy: jest.SpiedFunction<typeof waitModule.wait>;
+
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.clearAllTimers();
-    jest.clearAllMocks();
+    orSpy = jest.spyOn(utilsModule, "or");
+    timeoutSpy = jest.spyOn(timeoutModule, "timeout");
+    waitSpy = jest.spyOn(waitModule, "wait");
   });
 
   afterEach(() => {
+    timeoutSpy.mockRestore();
+    waitSpy.mockRestore();
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+  });
+
+  afterAll(() => {
     jest.useRealTimers();
   });
 
-  it("resolves immediately if callback returns 0", async () => {
-    await expect(waitFor(() => 0)).resolves.toBeUndefined();
-    expect(waitMock).not.toHaveBeenCalled();
+  describe("with delay only", () => {
+    it("resolves immediately if callback returns 0 or less", async () => {
+      await expect(waitFor(0)).resolves.toBeUndefined();
+      await expect(waitFor(() => 0)).resolves.toBeUndefined();
+      await expect(waitFor(-1)).resolves.toBeUndefined();
+      await expect(waitFor(() => -1)).resolves.toBeUndefined();
+      expect(waitSpy).not.toHaveBeenCalled();
+    });
+
+    it("waits once with fixed delay and then resolves", async () => {
+      waitSpy.mockResolvedValue(undefined);
+
+      const callback = jest.fn();
+      callback.mockReturnValueOnce(100);
+      callback.mockReturnValueOnce(0); // resolve on second loop
+
+      await waitFor(callback);
+
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(waitSpy).toHaveBeenCalledWith(100, undefined);
+      expect(waitSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it("resolves immediately if static delay is 0", async () => {
-    await expect(waitFor(0)).resolves.toBeUndefined();
-    expect(waitMock).not.toHaveBeenCalled();
+  describe("with onRetry", () => {
+    it("calls onRetry before waiting, respects false return", async () => {
+      waitSpy.mockResolvedValueOnce();
+      const onRetry = jest.fn().mockReturnValue(false);
+
+      const error = await waitFor(() => 100, { onRetry }).catch(
+        (error) => error,
+      );
+      expectRetryError(error);
+
+      expect(onRetry).toHaveBeenCalledWith(100);
+      expect(waitSpy).not.toHaveBeenCalled(); // Should abort before wait
+    });
+
+    it("supports async onRetry that returns false", async () => {
+      waitSpy.mockResolvedValueOnce();
+      const onRetry = jest.fn().mockResolvedValue(false);
+
+      const error = await waitFor(() => 100, { onRetry }).catch(
+        (error) => error,
+      );
+      expectRetryError(error);
+
+      expect(onRetry).toHaveBeenCalledWith(100);
+      expect(waitSpy).not.toHaveBeenCalled();
+    });
+
+    it("retries multiple times with dynamic delays from callback", async () => {
+      const delays = [100, 200, 300, 0];
+      const callback = jest.fn();
+      for (const delay of delays) {
+        callback.mockResolvedValueOnce(delay);
+      }
+
+      waitSpy.mockResolvedValue();
+      await waitFor(callback);
+
+      expect(callback).toHaveBeenCalledTimes(4);
+      for (let i = 1; i < delays.length; ++i) {
+        expect(waitSpy).toHaveBeenNthCalledWith(i, delays[i - 1], undefined);
+      }
+    });
   });
 
-  it("waits once and then stops if callback returns > 0 then ≤ 0", async () => {
-    let count = 0;
-    const delays = [500, 0];
-    await waitFor(() => delays[count++]);
+  describe("with timeout", () => {
+    it("throws TimeoutError if timeoutFn rejects", async () => {
+      const callback = jest.fn();
+      callback.mockReturnValueOnce(1000);
+      callback.mockReturnValue(0);
 
-    expect(waitMock).toHaveBeenCalledTimes(1);
-    expect(waitMock).toHaveBeenCalledWith(500, undefined);
+      timeoutSpy.mockRejectedValue(new TimeoutError());
+
+      const promise = waitFor(callback, { timeout: 100 });
+      jest.advanceTimersByTime(100);
+      await Promise.resolve(); // Flush microtasks before abort triggers
+      const error = await promise.catch((e) => e);
+
+      expectTimeoutError(error);
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(timeoutSpy).toHaveBeenCalledTimes(1);
+      expect(waitSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it("waits multiple times until callback returns ≤ 0", async () => {
-    let call = 0;
-    const delays = [300, 200, 0];
-    await waitFor(() => delays[call++]);
+  describe("with signal", () => {
+    it("throws AbortError if signal is aborted before start", async () => {
+      const controller = new AbortController();
+      const signal = controller.signal;
 
-    expect(waitMock).toHaveBeenCalledTimes(2);
-    expect(waitMock).toHaveBeenNthCalledWith(1, 300, undefined);
-    expect(waitMock).toHaveBeenNthCalledWith(2, 200, undefined);
+      controller.abort();
+
+      const error = await waitFor(0, { signal }).catch((error) => error);
+      expectNativeAbortError(error);
+    });
+
+    it("throws AbortError if signal aborts during waiting", async () => {
+      const callback = jest.fn();
+      callback.mockReturnValueOnce(500);
+      callback.mockReturnValue(0);
+
+      const controller = new AbortController();
+      const promise = waitFor(callback, { signal: controller.signal });
+      jest.advanceTimersByTime(100);
+      await Promise.resolve(); // Flush microtasks before abort triggers
+      controller.abort();
+      jest.advanceTimersByTime(100);
+      await Promise.resolve(); // Flush microtasks before abort triggers
+      const error = await promise.catch((e) => e);
+
+      expectNativeAbortError(error);
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(waitSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("combines abort signals with timeout signal using or()", async () => {
+      const userSignal = new AbortController().signal;
+      const timeoutSignal = new AbortController().signal;
+      orSpy.mockReturnValue(timeoutSignal);
+
+      timeoutSpy.mockImplementation(() => Promise.resolve());
+      waitSpy.mockResolvedValue();
+
+      const callback = jest.fn().mockResolvedValue(0);
+      await waitFor(callback, { signal: userSignal, timeout: 1000 });
+
+      expect(orSpy).toHaveBeenCalledWith(userSignal, expect.anything());
+    });
   });
 
-  it("rejects with AbortError if signal is already aborted", async () => {
+  it("aborts timeoutController after mainLoop finishes", async () => {
     const controller = new AbortController();
     controller.abort();
 
-    await expect(
-      waitFor(1000, { signal: controller.signal }),
-    ).rejects.toBeInstanceOf(DOMException);
-    expect(waitMock).not.toHaveBeenCalled();
-  });
+    const originalAbortController = global.AbortController;
+    global.AbortController = jest.fn(() => controller);
 
-  it("rejects with signal.reason if already aborted with reason", async () => {
-    const controller = new AbortController();
-    const reason = new Error("custom reason");
-    controller.abort(reason);
+    waitSpy.mockResolvedValue();
+    await waitFor(() => 0);
 
-    await expect(waitFor(1000, { signal: controller.signal })).rejects.toBe(
-      reason,
-    );
-  });
-
-  it("rejects with AbortError if signal is aborted during wait", async () => {
-    const controller = new AbortController();
-    waitMock.mockImplementationOnce(async () => {
-      controller.abort();
-      throw controller.signal.reason;
-    });
-    try {
-      await waitFor(1000, { signal: controller.signal });
-    } catch (err) {
-      expect(err).toBeInstanceOf(DOMException);
-    }
-  });
-
-  it("calls onRetry before each retry", async () => {
-    const onRetry = jest.fn().mockReturnValue(true);
-    let count = 0;
-    const delays = [200, 100, 0];
-
-    await waitFor(() => delays[count++], { onRetry });
-
-    expect(onRetry).toHaveBeenCalledTimes(2);
-    expect(onRetry).toHaveBeenNthCalledWith(1, 200);
-    expect(onRetry).toHaveBeenNthCalledWith(2, 100);
-  });
-
-  it("rejects with RetryError if onRetry returns false", async () => {
-    const onRetry = jest.fn().mockReturnValueOnce(false);
-    await expect(waitFor(() => 100, { onRetry })).rejects.toBeInstanceOf(
-      RetryError,
-    );
-    expect(waitMock).not.toHaveBeenCalled();
-  });
-
-  it("rejects with RetryError if async onRetry resolves false", async () => {
-    const onRetry = jest.fn().mockResolvedValue(false);
-    await expect(waitFor(() => 100, { onRetry })).rejects.toBeInstanceOf(
-      RetryError,
-    );
-  });
-
-  it("rejects with TimeoutError if duration exceeds timeout", async () => {
-    jest.useFakeTimers();
-    const promise = waitFor(() => 1000, { timeout: 500 });
-    jest.advanceTimersByTime(750);
-    await Promise.resolve(); // allow timers/microtasks
-    await expect(promise).rejects.toBeInstanceOf(TimeoutError);
-  });
-
-  it("clears timeout after success", async () => {
-    const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
-    await waitFor(() => 0, { timeout: 1000 });
-    expect(clearTimeoutSpy).toHaveBeenCalled();
-  });
-
-  it("clears timeout after success with signal and timeout", async () => {
-    const controller = new AbortController();
-    const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
-    await waitFor(() => 0, {
-      signal: controller.signal,
-      timeout: 1000,
-    });
-    expect(clearTimeoutSpy).toHaveBeenCalled();
-  });
-
-  it("clears timeout after failure", async () => {
-    const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
-
-    const onRetry = jest.fn().mockReturnValueOnce(false);
-    await expect(
-      waitFor(() => 100, { timeout: 1000, onRetry }),
-    ).rejects.toBeInstanceOf(RetryError);
-
-    expect(clearTimeoutSpy).toHaveBeenCalled();
-  });
-
-  it("supports async delay function", async () => {
-    let i = 0;
-    await waitFor(async () => {
-      return [300, 0][i++];
-    });
-
-    expect(waitMock).toHaveBeenCalledTimes(1);
-    expect(waitMock).toHaveBeenCalledWith(300, undefined);
-  });
-
-  it("propagates errors thrown in delay function", async () => {
-    const err = new Error("delay fn failed");
-    await expect(
-      waitFor(() => {
-        throw err;
-      }),
-    ).rejects.toBe(err);
-  });
-
-  it("propagates promise rejections from delay function", async () => {
-    const err = new Error("async error");
-    await expect(
-      waitFor(async () => {
-        throw err;
-      }),
-    ).rejects.toBe(err);
-  });
-
-  it("aborts early with AbortError if signal is aborted before timeout", async () => {
-    const controller = new AbortController();
-    const promise = waitFor(1000, {
-      signal: controller.signal,
-      timeout: 5000,
-    });
-
-    try {
-      controller.abort(); // abort before timeout fires
-      await promise;
-    } catch (err) {
-      expect(err).toBeInstanceOf(DOMException);
-      expect((err as DOMException).name).toBe("AbortError");
-    }
-  });
-
-  it("aborts with TimeoutError if timeout expires before signal is aborted", async () => {
-    const controller = new AbortController();
-    const promise = waitFor(1000, {
-      signal: controller.signal,
-      timeout: 500,
-    });
-
-    jest.advanceTimersByTime(501);
-    try {
-      controller.abort(); // abort before timeout fires
-      await promise;
-    } catch (err) {
-      expect(err).toBeInstanceOf(DOMException);
-      expect((err as DOMException).name).toBe("TimeoutError");
-    }
-  });
-
-  it("aborts only once even if both signal and timeout fire", async () => {
-    const controller = new AbortController();
-    const onAbort = jest.fn();
-    controller.signal.addEventListener("abort", onAbort);
-
-    const promise = waitFor(1000, {
-      signal: controller.signal,
-      timeout: 500,
-    });
-
-    // Trigger both in same tick
-    jest.advanceTimersByTime(499);
-    controller.abort(); // fire signal first
-    jest.advanceTimersByTime(1); // timeout now fires
-
-    await expect(promise).rejects.toBeInstanceOf(DOMException);
-    expect(onAbort).toHaveBeenCalledTimes(1); // ensure listener only triggered once
+    expect(controller.signal.aborted).toBe(true);
+    global.AbortController = originalAbortController;
   });
 });

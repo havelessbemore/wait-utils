@@ -1,4 +1,4 @@
-import { AbortError } from "src/abortError";
+import { AbortError } from "src/errors/abortError";
 
 describe(AbortError.name, () => {
   test("is an instance of DOMException", () => {

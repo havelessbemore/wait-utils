@@ -1,4 +1,4 @@
-import { TimeoutError } from "src/timeoutError";
+import { TimeoutError } from "src/errors/timeoutError";
 
 describe(TimeoutError.name, () => {
   test("is an instance of DOMException", () => {

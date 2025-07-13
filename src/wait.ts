@@ -1,4 +1,4 @@
-import { throwIfAborted } from "./utils";
+import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
  * Waits for the specified number of milliseconds.

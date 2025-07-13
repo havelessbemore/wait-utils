@@ -1,11 +1,9 @@
 import { wait } from "src/wait";
-import { throwIfAborted } from "src/utils";
+import { throwIfAborted } from "src/utils/throwIfAborted";
 
-jest.mock("src/utils", () => ({
-  throwIfAborted: jest.fn(),
-}));
+jest.mock("src/utils/throwIfAborted");
 
-describe("wait", () => {
+describe(wait.name, () => {
   const mockThrowIfAborted = throwIfAborted as jest.MockedFunction<
     typeof throwIfAborted
   >;

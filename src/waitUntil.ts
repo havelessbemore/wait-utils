@@ -1,4 +1,4 @@
-import { throwIfAborted } from "./utils";
+import { throwIfAborted } from "./utils/throwIfAborted";
 import { wait } from "./wait";
 
 /**

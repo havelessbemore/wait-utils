@@ -1,7 +1,7 @@
 {
   "$schema": "http://json.schemastore.org/package.json",
   "name": "wait-utils",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A modern, zero-dependency wait / timing utility toolkit for JavaScript and TypeScript.",
   "license": "MIT",
   "type": "module",

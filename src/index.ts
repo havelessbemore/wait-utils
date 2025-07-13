@@ -1,8 +1,8 @@
-export { AbortError } from "./abortError";
+export { AbortError } from "./errors/abortError";
 
-export { RetryError } from "./retryError";
+export { RetryError } from "./errors/retryError";
 
-export { TimeoutError } from "./timeoutError";
+export { TimeoutError } from "./errors/timeoutError";
 
 export { timeout } from "./timeout";
 

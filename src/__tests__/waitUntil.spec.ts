@@ -1,4 +1,4 @@
-import { AbortError } from "src/abortError";
+import { AbortError } from "src/errors/abortError";
 import { wait } from "src/wait";
 import { waitUntil } from "src/waitUntil";
 
@@ -8,7 +8,7 @@ jest.mock("src/wait", () => ({
 }));
 
 // Use fake timers and mock performance.now()
-describe("waitUntil", () => {
+describe(waitUntil.name, () => {
   let nowSpy: jest.SpyInstance<number, []>;
 
   beforeEach(() => {

@@ -1,6 +1,10 @@
-import { RetryError } from "./retryError";
-import { TimeoutError } from "./timeoutError";
-import { throwIfAborted } from "./utils";
+import { RetryError } from "./errors/retryError";
+import { timeout as timeoutFn } from "./timeout";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type TimeoutError } from "./errors/timeoutError";
+import { or } from "./utils/or";
+import { isFunction } from "./utils/isFunction";
+import { throwIfAborted } from "./utils/throwIfAborted";
 import { wait } from "./wait";
 
 /**
@@ -31,7 +35,7 @@ export interface WaitForOptions {
    * Maximum total duration to wait before timing out, in milliseconds.
    *
    * If the wait does not complete within this duration,
-   * the returned a {@link TimeoutError} is thrown.
+   * a {@link TimeoutError} is thrown.
    */
   timeout?: number;
 }
@@ -91,40 +95,33 @@ export async function waitFor(
 ): Promise<void> {
   throwIfAborted(signal);
 
-  // Setup timeout
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-  let timeoutSignal: AbortSignal | undefined;
-  if (timeout != null) {
-    const controller = new AbortController();
-    timeoutSignal = controller.signal;
-    timeoutId = setTimeout(() => {
-      controller.abort(new TimeoutError());
-    }, timeout);
-  }
+  const callbackfn = isFunction(delayOrFn) ? delayOrFn : () => delayOrFn;
+  let combinedSignal = signal;
+  // eslint-disable-next-line prefer-const
+  let timeoutController: AbortController | undefined;
 
-  // Combine signals if needed
-  const combinedSignal =
-    signal != null && timeoutSignal != null
-      ? AbortSignal.any([signal, timeoutSignal])
-      : (signal ?? timeoutSignal);
-
-  // Normalize callbackfn
-  const callbackfn =
-    typeof delayOrFn === "function" ? delayOrFn : () => delayOrFn;
-
-  try {
-    let ms = await callbackfn();
-    while (ms > 0) {
+  const mainLoop = async () => {
+    try {
       throwIfAborted(combinedSignal);
-      if ((await onRetry?.(ms)) === false) {
-        throw new RetryError();
+      let ms = await callbackfn();
+      while (ms > 0) {
+        throwIfAborted(combinedSignal);
+        if ((await onRetry?.(ms)) === false) {
+          throw new RetryError();
+        }
+        await wait(ms, combinedSignal);
+        ms = await callbackfn();
       }
-      await wait(ms, combinedSignal);
-      ms = await callbackfn();
+    } finally {
+      timeoutController?.abort();
     }
-  } finally {
-    if (timeoutId != null) {
-      clearTimeout(timeoutId);
-    }
+  };
+
+  if (timeout == null) {
+    return mainLoop();
   }
+
+  timeoutController = new AbortController();
+  combinedSignal = or(signal, timeoutController.signal);
+  return Promise.race([timeoutFn(timeout, combinedSignal), mainLoop()]);
 }

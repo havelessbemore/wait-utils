@@ -1,13 +1,10 @@
 import { timeout } from "src/timeout";
-import { TimeoutError } from "src/timeoutError";
+import { TimeoutError } from "src/errors/timeoutError";
 import * as waitModule from "src/wait";
 
-function expectTimeoutError(value: unknown) {
-  expect(value).toBeInstanceOf(TimeoutError);
-  expect(value).toHaveProperty("name", "TimeoutError");
-}
+import { expectTimeoutError } from "src/errors/__testutils__/utils";
 
-describe("timeout", () => {
+describe(timeout.name, () => {
   let waitSpy: jest.SpiedFunction<typeof waitModule.wait>;
 
   beforeAll(() => {

@@ -1,4 +1,4 @@
-import { RetryError } from "src/retryError";
+import { RetryError } from "src/errors/retryError";
 
 describe(RetryError.name, () => {
   test("is an instance of Error", () => {
