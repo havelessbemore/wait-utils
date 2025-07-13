@@ -36,6 +36,20 @@ describe(waitUntil.name, () => {
     expect(wait).not.toHaveBeenCalled();
   });
 
+  it("resolves immediately if delay is 0", async () => {
+    nowSpy.mockReturnValue(2000);
+    await expect(waitUntil(0)).resolves.toBeUndefined();
+    expect(nowSpy).not.toHaveBeenCalled();
+    expect(wait).not.toHaveBeenCalled();
+  });
+
+  it("resolves immediately if delay is negative", async () => {
+    nowSpy.mockReturnValue(2000);
+    await expect(waitUntil(-1)).resolves.toBeUndefined();
+    expect(nowSpy).not.toHaveBeenCalled();
+    expect(wait).not.toHaveBeenCalled();
+  });
+
   it("resolves immediately if current time is already past the timestamp", async () => {
     nowSpy.mockReturnValue(2000);
     await expect(waitUntil(1000)).resolves.toBeUndefined();

@@ -20,7 +20,7 @@ export async function waitUntil(
 ): Promise<void> {
   throwIfAborted(signal);
 
-  if (timestamp == null) {
+  if (timestamp == null || timestamp <= 0) {
     return;
   }
 
