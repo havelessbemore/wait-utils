@@ -116,8 +116,8 @@ describe(or.name, () => {
       const combined = or(controller1.signal, controller2.signal);
       expect(combined.aborted).toBe(true);
       expect(combined.reason).toBe("pre1");
-      expect(spy1).not.toHaveBeenCalledWith();
-      expect(spy2).not.toHaveBeenCalledWith();
+      expect(spy1).not.toHaveBeenCalled();
+      expect(spy2).not.toHaveBeenCalled();
     });
 
     it("aborts immediately if signal2 is already aborted", () => {
@@ -127,8 +127,8 @@ describe(or.name, () => {
       const combined = or(controller1.signal, controller2.signal);
       expect(combined.aborted).toBe(true);
       expect(combined.reason).toBe("pre2");
-      expect(spy1).not.toHaveBeenCalledWith();
-      expect(spy2).not.toHaveBeenCalledWith();
+      expect(spy1).not.toHaveBeenCalled();
+      expect(spy2).not.toHaveBeenCalled();
     });
 
     it("cleans up event listener after signal1 aborts", async () => {
@@ -139,7 +139,7 @@ describe(or.name, () => {
       controller1.abort("bye");
       await delay(0);
 
-      expect(spy1).not.toHaveBeenCalledWith();
+      expect(spy1).not.toHaveBeenCalled();
       expect(spy2).toHaveBeenCalledWith("abort", expect.any(Function));
     });
 
@@ -152,7 +152,63 @@ describe(or.name, () => {
       await delay(0);
 
       expect(spy1).toHaveBeenCalledWith("abort", expect.any(Function));
-      expect(spy2).not.toHaveBeenCalledWith();
+      expect(spy2).not.toHaveBeenCalled();
+    });
+
+    it("does not abort with signal2 if already aborted", async () => {
+      const spy1 = jest.spyOn(controller1.signal, "removeEventListener");
+      const spy2 = jest.spyOn(controller2.signal, "removeEventListener");
+
+      const signal = or(controller1.signal, controller2.signal);
+      controller1.abort("foo");
+      controller2.abort("bar");
+      await delay(0);
+
+      expect(signal.reason).toBe("foo");
+      expect(spy1).toHaveBeenCalledTimes(0);
+      expect(spy2).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not abort with signal1 if already aborted", async () => {
+      const spy1 = jest.spyOn(controller1.signal, "removeEventListener");
+      const spy2 = jest.spyOn(controller2.signal, "removeEventListener");
+
+      const signal = or(controller1.signal, controller2.signal);
+      controller2.abort("bar");
+      controller1.abort("foo");
+      await delay(0);
+
+      expect(signal.reason).toBe("bar");
+      expect(spy1).toHaveBeenCalledTimes(1);
+      expect(spy2).toHaveBeenCalledTimes(0);
+    });
+
+    it("does not abort by signal1 twice", async () => {
+      const spy1 = jest.spyOn(controller1.signal, "removeEventListener");
+      const spy2 = jest.spyOn(controller2.signal, "removeEventListener");
+
+      const signal = or(controller1.signal, controller2.signal);
+      controller1.abort("foo");
+      controller1.abort("bar");
+      await delay(0);
+
+      expect(signal.reason).toBe("foo");
+      expect(spy1).toHaveBeenCalledTimes(0);
+      expect(spy2).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not abort by signal2 twice", async () => {
+      const spy1 = jest.spyOn(controller1.signal, "removeEventListener");
+      const spy2 = jest.spyOn(controller2.signal, "removeEventListener");
+
+      const signal = or(controller1.signal, controller2.signal);
+      controller2.abort("foo");
+      controller2.abort("bar");
+      await delay(0);
+
+      expect(signal.reason).toBe("foo");
+      expect(spy1).toHaveBeenCalledTimes(1);
+      expect(spy2).toHaveBeenCalledTimes(0);
     });
   });
 });
