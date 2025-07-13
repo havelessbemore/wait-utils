@@ -35,6 +35,13 @@ describe(timeout.name, () => {
       expect(waitSpy).toHaveBeenCalledWith(undefined, undefined);
     });
 
+    it("works if delay is null", async () => {
+      waitSpy.mockImplementationOnce(() => Promise.resolve());
+      const error = await timeout(null).catch((error) => error);
+      expectTimeoutError(error);
+      expect(waitSpy).toHaveBeenCalledWith(null, undefined);
+    });
+
     it("works if delay is 0", async () => {
       waitSpy.mockImplementationOnce(() => Promise.resolve());
       const error = await timeout(0).catch((error) => error);

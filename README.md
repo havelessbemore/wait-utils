@@ -48,7 +48,7 @@ Rejects with a `TimeoutError` after the specified delay, unless cancelled by an 
 
 | Name     | Type           | Description                                                        |
 |----------|----------------|--------------------------------------------------------------------|
-| `delay?`  | `number`       | The number of milliseconds to wait before timing out   |
+| `delay?`  | `number \| null`       | The number of milliseconds to wait before timing out   |
 | `signal?` | `AbortSignal`  | Allows canceling the timeout |
 
 #### Returns
@@ -86,7 +86,7 @@ Waits for a given number of milliseconds, unless cancelled by an `AbortSignal`.
 
 | Name     | Type           | Description                                                        |
 |----------|----------------|--------------------------------------------------------------------|
-| `delay?`  | `number`      | The number of milliseconds to wait   |
+| `delay?`  | `number \| null`      | The number of milliseconds to wait   |
 | `signal?` | `AbortSignal` | Allows canceling the wait early |
 
 #### Returns
@@ -163,7 +163,7 @@ import { waitFor } from "wait-utils";
 await waitFor(() => (Math.random() < 0.2 ? 0 : 100));
 ```
 
-### `waitUntil(timestamp, signal?)`
+### `waitUntil(timestamp?, signal?)`
 
 Waits until the given `performance.now()` timestamp is reached, unless canceled by an `AbortSignal`.
 
@@ -171,7 +171,7 @@ Waits until the given `performance.now()` timestamp is reached, unless canceled 
 
 | Name     | Type           | Description                                                        |
 |----------|----------------|--------------------------------------------------------------------|
-| `timestamp`  | `number`      | Target timestamp (in milliseconds) relative to `performance.now()`   |
+| `timestamp?`  | `number \| null`      | Target timestamp (in milliseconds) relative to `performance.now()`   |
 | `signal?` | `AbortSignal` | Allows canceling the wait early |
 
 #### Returns

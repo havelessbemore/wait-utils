@@ -22,6 +22,20 @@ describe(waitUntil.name, () => {
     jest.useRealTimers();
   });
 
+  it("resolves immediately if delay is undefined", async () => {
+    nowSpy.mockReturnValue(2000);
+    await expect(waitUntil(undefined)).resolves.toBeUndefined();
+    expect(nowSpy).not.toHaveBeenCalled();
+    expect(wait).not.toHaveBeenCalled();
+  });
+
+  it("resolves immediately if delay is null", async () => {
+    nowSpy.mockReturnValue(2000);
+    await expect(waitUntil(null)).resolves.toBeUndefined();
+    expect(nowSpy).not.toHaveBeenCalled();
+    expect(wait).not.toHaveBeenCalled();
+  });
+
   it("resolves immediately if current time is already past the timestamp", async () => {
     nowSpy.mockReturnValue(2000);
     await expect(waitUntil(1000)).resolves.toBeUndefined();

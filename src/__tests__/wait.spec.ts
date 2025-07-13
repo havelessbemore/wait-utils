@@ -29,6 +29,11 @@ describe(wait.name, () => {
     expect(setTimeout).not.toHaveBeenCalled();
   });
 
+  it("resolves immediately if delay is null", async () => {
+    await expect(wait(null)).resolves.toBeUndefined();
+    expect(setTimeout).not.toHaveBeenCalled();
+  });
+
   it("resolves immediately if delay is 0", async () => {
     await expect(wait(0)).resolves.toBeUndefined();
     expect(setTimeout).not.toHaveBeenCalled();

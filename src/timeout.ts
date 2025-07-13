@@ -13,7 +13,10 @@ import { wait } from "./wait";
  * - rejects with a `TimeoutError` if the delay completes
  * - rethrows an error if an unexpected rejection occurs
  */
-export function timeout(delay?: number, signal?: AbortSignal): Promise<void> {
+export function timeout(
+  delay?: number | null,
+  signal?: AbortSignal,
+): Promise<void> {
   return wait(delay, signal).then(
     () => {
       throw new TimeoutError();

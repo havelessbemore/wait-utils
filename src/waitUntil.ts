@@ -15,10 +15,14 @@ import { wait } from "./wait";
  * - rejects with `AbortError` if cancelled.
  */
 export async function waitUntil(
-  timestamp: number,
+  timestamp?: number | null,
   signal?: AbortSignal,
 ): Promise<void> {
   throwIfAborted(signal);
+
+  if (timestamp == null) {
+    return;
+  }
 
   // Wait until given timestamp
   let now = performance.now();

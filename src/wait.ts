@@ -13,7 +13,7 @@ import { throwIfAborted } from "./utils/throwIfAborted";
  * - rejects with the `AbortSignal.reason` if cancelled before the delay
  */
 export async function wait(
-  delay?: number,
+  delay?: number | null,
   signal?: AbortSignal,
 ): Promise<void> {
   throwIfAborted(signal);
