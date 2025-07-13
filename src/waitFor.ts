@@ -97,8 +97,7 @@ export async function waitFor(
 
   const callbackfn = isFunction(delayOrFn) ? delayOrFn : () => delayOrFn;
   let combinedSignal = signal;
-  // eslint-disable-next-line prefer-const
-  let timeoutController: AbortController | undefined;
+  let timeoutController: AbortController | undefined = undefined;
 
   const mainLoop = async () => {
     try {

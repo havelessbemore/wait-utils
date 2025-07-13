@@ -1,6 +1,6 @@
 # wait-utils
 
-A modern, zero-dependency wait and timing utility toolkit for JavaScript and TypeScript.  
+A modern, zero-dependency wait and timing utility toolkit for JavaScript and TypeScript.
 
 Supports `AbortSignal`, timeouts, retries, and polling — all with first-class TypeScript types.
 
@@ -46,10 +46,10 @@ Rejects with a `TimeoutError` after the specified delay, unless cancelled by an 
 
 #### Parameters
 
-| Name     | Type           | Description                                                        |
-|----------|----------------|--------------------------------------------------------------------|
-| `delay?`  | `number \| null`       | The number of milliseconds to wait before timing out   |
-| `signal?` | `AbortSignal`  | Allows canceling the timeout |
+| Name      | Type             | Description                                          |
+| --------- | ---------------- | ---------------------------------------------------- |
+| `delay?`  | `number \| null` | The number of milliseconds to wait before timing out |
+| `signal?` | `AbortSignal`    | Allows canceling the timeout                         |
 
 #### Returns
 
@@ -84,10 +84,10 @@ Waits for a given number of milliseconds, unless cancelled by an `AbortSignal`.
 
 #### Parameters
 
-| Name     | Type           | Description                                                        |
-|----------|----------------|--------------------------------------------------------------------|
-| `delay?`  | `number \| null`      | The number of milliseconds to wait   |
-| `signal?` | `AbortSignal` | Allows canceling the wait early |
+| Name      | Type             | Description                        |
+| --------- | ---------------- | ---------------------------------- |
+| `delay?`  | `number \| null` | The number of milliseconds to wait |
+| `signal?` | `AbortSignal`    | Allows canceling the wait early    |
 
 #### Returns
 
@@ -118,15 +118,15 @@ Repeats a wait until a condition resolves or aborts
 
 #### Parameters
 
-| Name     | Type           | Description                                                        |
-|----------|----------------|--------------------------------------------------------------------|
-| `delay`  | `number \| () => number \| Promise<number>`      | Fixed delay or a function that returns the delay in ms. Return ≤ 0 to resolve.   |
-| `options?` | `WaitForOptions` | Optional settings |
+| Name       | Type                                        | Description                                                                    |
+| ---------- | ------------------------------------------- | ------------------------------------------------------------------------------ |
+| `delay`    | `number \| () => number \| Promise<number>` | Fixed delay or a function that returns the delay in ms. Return ≤ 0 to resolve. |
+| `options?` | `WaitForOptions`                            | Optional settings                                                              |
 
 Supported options are:
 
-| Option    | Type                            | Description                                                            |
-| --------- | ------------------------------- | ---------------------------------------------------------------------- |
+| Option     | Type                            | Description                                                            |
+| ---------- | ------------------------------- | ---------------------------------------------------------------------- |
 | `signal?`  | `AbortSignal`                   | Cancels the wait early                                                 |
 | `timeout?` | `number` (ms)                   | Max total time before a `TimeoutError` is thrown                       |
 | `onRetry?` | `(ms: number) => boolean\|void` | Called before each wait; return `false` to stop and throw `RetryError` |
@@ -169,10 +169,10 @@ Waits until the given `performance.now()` timestamp is reached, unless canceled 
 
 #### Parameters
 
-| Name     | Type           | Description                                                        |
-|----------|----------------|--------------------------------------------------------------------|
-| `timestamp?`  | `number \| null`      | Target timestamp (in milliseconds) relative to `performance.now()`   |
-| `signal?` | `AbortSignal` | Allows canceling the wait early |
+| Name         | Type             | Description                                                        |
+| ------------ | ---------------- | ------------------------------------------------------------------ |
+| `timestamp?` | `number \| null` | Target timestamp (in milliseconds) relative to `performance.now()` |
+| `signal?`    | `AbortSignal`    | Allows canceling the wait early                                    |
 
 #### Returns
 
