@@ -59,9 +59,9 @@ export interface WaitForOptions {
  *
  * @returns A promise that resolves after waiting completes, or rejects if cancelled.
  *
- * @throws `AbortError` If the operation is aborted via `AbortSignal`.
- * @throws {@link RetryError} If the `onRetry` callback returns `false`.
- * @throws {@link TimeoutError} If the wait exceeds the given timeout.
+ * @throws An `AbortError` If the operation is aborted via `AbortSignal`.
+ * @throws A {@link RetryError} If the `onRetry` callback returns `false`.
+ * @throws A {@link TimeoutError} If the wait exceeds the given timeout.
  */
 export function waitFor(
   callbackfn: () => number | Promise<number>,
@@ -84,9 +84,9 @@ export function waitFor(
  *
  * @returns A promise that resolves after the wait completes, or rejects if cancelled.
  *
- * @throws `AbortError` If the operation is aborted via the provided `AbortSignal`.
- * @throws {@link RetryError} If the `onRetry` callback returns `false`.
- * @throws {@link TimeoutError} If the wait exceeds the given timeout.
+ * @throws An `AbortError` If the operation is aborted via the provided `AbortSignal`.
+ * @throws A {@link RetryError} If the `onRetry` callback returns `false`.
+ * @throws A {@link TimeoutError} If the wait exceeds the given timeout.
  */
 export function waitFor(delay: number, options?: WaitForOptions): Promise<void>;
 export async function waitFor(
