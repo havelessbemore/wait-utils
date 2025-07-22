@@ -18,7 +18,12 @@ export async function wait(
 ): Promise<void> {
   throwIfAborted(signal);
 
-  if (delay == null || Number.isNaN(delay) || delay <= 0) {
+  if (delay == null) {
+    return;
+  }
+
+  delay = Number(delay);
+  if (Number.isNaN(delay) || delay <= 0) {
     return;
   }
 
@@ -27,32 +32,20 @@ export async function wait(
   }
 
   return new Promise<void>((resolve, reject) => {
-    let isCompleted = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
 
-    const cleanup = () => {
-      clearTimeout(timeoutId);
-      signal.removeEventListener("abort", onAbort);
-    };
-
     const onAbort = () => {
-      if (!isCompleted) {
-        isCompleted = true;
-        cleanup();
-        reject(signal.reason);
-      }
+      clearTimeout(timeoutId);
+      reject(signal.reason);
     };
 
     const onResolve = () => {
-      if (!isCompleted) {
-        isCompleted = true;
-        cleanup();
-        resolve();
-      }
+      signal.removeEventListener("abort", onAbort);
+      resolve();
     };
 
     if (signal.aborted) {
-      onAbort();
+      reject(signal.reason);
       return;
     }
 
