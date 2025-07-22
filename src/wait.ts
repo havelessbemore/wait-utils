@@ -18,7 +18,7 @@ export async function wait(
 ): Promise<void> {
   throwIfAborted(signal);
 
-  if (delay == null || delay <= 0) {
+  if (delay == null || Number.isNaN(delay) || delay <= 0) {
     return;
   }
 

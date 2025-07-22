@@ -1,150 +1,139 @@
-import { AbortError } from "src/errors/abortError";
-import { wait } from "src/wait";
+import * as waitModule from "src/wait";
 import { waitUntil } from "src/waitUntil";
+import { throwIfAborted } from "src/utils/throwIfAborted";
 
-// Mock wait function
-jest.mock("src/wait", () => ({
-  wait: jest.fn(() => Promise.resolve()),
-}));
+jest.mock("src/utils/throwIfAborted");
 
-// Use fake timers and mock performance.now()
-describe(waitUntil.name, () => {
-  let nowSpy: jest.SpyInstance<number, []>;
+describe("waitUntil", () => {
+  const mockThrowIfAborted = throwIfAborted as jest.MockedFunction<
+    typeof throwIfAborted
+  >;
+  let nowSpy: jest.SpiedFunction<typeof performance.now>;
+  let waitSpy: jest.SpiedFunction<typeof waitModule.wait>;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
-    nowSpy = jest.spyOn(performance, "now");
+  beforeAll(() => {
+    jest.useFakeTimers({ now: 1_000_000 });
+    nowSpy = jest
+      .spyOn(performance, "now")
+      .mockImplementation(() => jest.now());
+    waitSpy = jest.spyOn(waitModule, "wait");
   });
 
   afterEach(() => {
-    nowSpy.mockRestore();
+    jest.runOnlyPendingTimers();
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
     jest.useRealTimers();
   });
 
-  it("resolves immediately if delay is undefined", async () => {
-    nowSpy.mockReturnValue(2000);
+  // Timestamp
+
+  it("resolves immediately if timestamp is undefined", async () => {
     await expect(waitUntil(undefined)).resolves.toBeUndefined();
-    expect(nowSpy).not.toHaveBeenCalled();
-    expect(wait).not.toHaveBeenCalled();
+    expect(waitSpy).not.toHaveBeenCalled();
   });
 
-  it("resolves immediately if delay is null", async () => {
-    nowSpy.mockReturnValue(2000);
+  it("resolves immediately if timestamp is null", async () => {
     await expect(waitUntil(null)).resolves.toBeUndefined();
-    expect(nowSpy).not.toHaveBeenCalled();
-    expect(wait).not.toHaveBeenCalled();
+    expect(waitSpy).not.toHaveBeenCalled();
   });
 
-  it("resolves immediately if delay is 0", async () => {
-    nowSpy.mockReturnValue(2000);
-    await expect(waitUntil(0)).resolves.toBeUndefined();
-    expect(nowSpy).not.toHaveBeenCalled();
-    expect(wait).not.toHaveBeenCalled();
+  it("resolves immediately if timestamp is NaN", async () => {
+    await expect(waitUntil(NaN)).resolves.toBeUndefined();
+    expect(waitSpy).not.toHaveBeenCalled();
   });
 
-  it("resolves immediately if delay is negative", async () => {
-    nowSpy.mockReturnValue(2000);
-    await expect(waitUntil(-1)).resolves.toBeUndefined();
-    expect(nowSpy).not.toHaveBeenCalled();
-    expect(wait).not.toHaveBeenCalled();
+  it("resolves immediately if timestamp casts to NaN", async () => {
+    let value = "not a number" as unknown as number;
+    await expect(waitUntil(value)).resolves.toBeUndefined();
+    value = (() => 100) as unknown as number;
+    await expect(waitUntil(value)).resolves.toBeUndefined();
+    expect(waitSpy).not.toHaveBeenCalled();
   });
 
-  it("resolves immediately if current time is already past the timestamp", async () => {
-    nowSpy.mockReturnValue(2000);
-    await expect(waitUntil(1000)).resolves.toBeUndefined();
-    expect(wait).not.toHaveBeenCalled();
+  it("resolves immediately if timestamp is < performance.now()", async () => {
+    const promise = waitUntil(jest.now() - 1);
+    await expect(promise).resolves.toBeUndefined();
+    expect(waitSpy).not.toHaveBeenCalled();
   });
 
-  it("resolves immediately if current time is equal to the timestamp", async () => {
-    nowSpy.mockReturnValue(1000);
-    await expect(waitUntil(1000)).resolves.toBeUndefined();
-    expect(wait).not.toHaveBeenCalled();
+  it("resolves immediately if timestamp is == performance.now()", async () => {
+    const promise = waitUntil(jest.now());
+    await expect(promise).resolves.toBeUndefined();
+    expect(waitSpy).not.toHaveBeenCalled();
   });
 
-  it("calls wait repeatedly until timestamp is reached", async () => {
-    const timestamps = [0, 400, 700, 1001];
-    let i = 0;
-    nowSpy.mockImplementation(() => timestamps[i++]);
+  // Signal
 
-    await waitUntil(1000);
-
-    expect(wait).toHaveBeenCalledTimes(3);
-    expect(wait).toHaveBeenNthCalledWith(1, 1000 - 0, undefined);
-    expect(wait).toHaveBeenNthCalledWith(2, 1000 - 400, undefined);
-    expect(wait).toHaveBeenNthCalledWith(3, 1000 - 700, undefined);
-  });
-
-  it("passes the signal to wait()", async () => {
+  it("rejects immediately if signal is already aborted", async () => {
     const controller = new AbortController();
-    nowSpy.mockImplementationOnce(() => 0).mockImplementationOnce(() => 1001);
-
-    await waitUntil(1000, controller.signal);
-
-    expect(wait).toHaveBeenCalledWith(1000, controller.signal);
-  });
-
-  it("throws immediately if signal is already aborted", async () => {
-    const controller = new AbortController();
-    controller.abort();
-
-    await expect(waitUntil(1000, controller.signal)).rejects.toBeInstanceOf(
-      DOMException,
-    );
-    expect(wait).not.toHaveBeenCalled();
-  });
-
-  it("throws the custom reason if signal.reason is set", async () => {
-    const controller = new AbortController();
-    const customError = new Error("custom abort reason");
-    controller.abort(customError);
-
-    await expect(waitUntil(1000, controller.signal)).rejects.toBe(customError);
-    expect(wait).not.toHaveBeenCalled();
-  });
-
-  it("throws AbortError if aborted during wait", async () => {
-    const controller = new AbortController();
-    const timestamps = [0, 400];
-    let i = 0;
-    nowSpy.mockImplementation(() => timestamps[i++]);
-
-    // Simulate abort during wait
-    (wait as jest.Mock).mockImplementationOnce(() => {
-      controller.abort(); // trigger during wait
-      return Promise.reject(new AbortError());
+    controller.abort(new Error("aborted"));
+    mockThrowIfAborted.mockImplementationOnce(() => {
+      throw controller.signal.reason;
     });
-
-    await expect(waitUntil(1000, controller.signal)).rejects.toBeInstanceOf(
-      DOMException,
-    );
-    expect(wait).toHaveBeenCalledTimes(1);
+    const promise = waitUntil(jest.now() + 100, controller.signal);
+    await expect(promise).rejects.toThrow("aborted");
+    expect(mockThrowIfAborted).toHaveBeenCalledWith(controller.signal);
+    expect(waitSpy).not.toHaveBeenCalled();
   });
 
-  it("does not call wait again after reaching timestamp", async () => {
-    nowSpy
-      .mockImplementationOnce(() => 0)
-      .mockImplementationOnce(() => 900)
-      .mockImplementationOnce(() => 1000)
-      .mockImplementationOnce(() => 1100); // safeguard
-
-    await waitUntil(1000);
-
-    expect(wait).toHaveBeenCalledTimes(2);
+  it("rejects if signal is aborted during wait", async () => {
+    const controller = new AbortController();
+    const promise = waitUntil(jest.now() + 100, controller.signal);
+    await jest.advanceTimersByTimeAsync(20);
+    controller.abort("mid-wait abort");
+    await expect(promise).rejects.toBe("mid-wait abort");
   });
 
-  it("wait handles negative durations gracefully", async () => {
-    nowSpy.mockImplementationOnce(() => 999).mockImplementationOnce(() => 1001);
+  it("resolves if signal is not aborted", async () => {
+    const controller = new AbortController();
+    const delay = 50;
+    const target = jest.now() + delay;
 
-    await waitUntil(1000);
-    expect(wait).toHaveBeenCalledWith(1, undefined);
+    const promise = waitUntil(target, controller.signal);
+    await jest.advanceTimersByTimeAsync(delay);
+    await expect(promise).resolves.toBeUndefined();
   });
 
-  it("propagates errors thrown by wait()", async () => {
-    nowSpy.mockReturnValue(0);
-    const error = new Error("some wait error");
-    (wait as jest.Mock).mockRejectedValue(error);
+  // Logic
 
-    await expect(waitUntil(1000)).rejects.toBe(error);
+  it("uses performance.now() to get delay", async () => {
+    const delay = 10;
+    const target = jest.now() + delay;
+
+    const promise = waitUntil(target);
+    await jest.advanceTimersByTimeAsync(delay);
+    await expect(promise).resolves.toBeUndefined();
+    expect(nowSpy).toHaveBeenCalled();
+    expect(waitSpy).toHaveBeenCalledWith(delay, undefined);
+  });
+
+  it("resolves correctly with short delay", async () => {
+    const delay = 10;
+    const target = jest.now() + delay;
+
+    const promise = waitUntil(target);
+    await jest.advanceTimersByTimeAsync(delay);
+    await expect(promise).resolves.toBeUndefined();
+  });
+
+  it("waits until the timestamp is reached", async () => {
+    const delay = 200;
+    const target = jest.now() + delay;
+
+    const promise = waitUntil(target);
+    await jest.advanceTimersByTimeAsync(delay - 10);
+
+    // Should not resolve yet
+    const pending = jest.getTimerCount();
+    expect(pending).toBeGreaterThan(0);
+
+    await jest.advanceTimersByTimeAsync(10);
+    await expect(promise).resolves.toBeUndefined();
+    expect(waitSpy).toHaveBeenCalled();
   });
 });

@@ -44,11 +44,9 @@ describe(wait.name, () => {
     expect(setTimeout).not.toHaveBeenCalled();
   });
 
-  it("resolves if delay is NaN", async () => {
-    const promise = wait(NaN);
-    jest.runOnlyPendingTimers();
-    expect(setTimeout).toHaveBeenCalled();
-    await expect(promise).resolves.toBeUndefined();
+  it("resolves immediately if delay is NaN", async () => {
+    await expect(wait(NaN)).resolves.toBeUndefined();
+    expect(setTimeout).not.toHaveBeenCalled();
   });
 
   it("resolves after delay", async () => {

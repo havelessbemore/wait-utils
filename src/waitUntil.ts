@@ -4,15 +4,12 @@ import { wait } from "./wait";
 /**
  * Waits until the specified high-resolution timestamp is reached.
  *
- * This function uses repeated calls to `wait()` and `performance.now()`
- * to align execution with the given target time.
- *
- * @param timestamp - Target timestamp (in milliseconds) relative to `performance.now()`.
- * @param signal - Optional abort signal to cancel the wait.
+ * @param timestamp - Target time (in milliseconds) relative to `performance.now()`.
+ * @param signal - Optional `AbortSignal` to cancel the wait early.
  *
  * @returns A promise that:
- * - resolves when the current time is at or beyond `ts`
- * - rejects with `AbortError` if cancelled.
+ * - resolves when the current time is at or past the target timestamp
+ * - rejects with the signal’s reason if cancelled before the target
  */
 export async function waitUntil(
   timestamp?: number | null,
@@ -20,14 +17,19 @@ export async function waitUntil(
 ): Promise<void> {
   throwIfAborted(signal);
 
-  if (timestamp == null || timestamp <= 0) {
+  if (timestamp == null) {
     return;
   }
 
-  // Wait until given timestamp
-  let now = performance.now();
-  while (now < timestamp) {
-    await wait(timestamp - now, signal);
-    now = performance.now();
+  const ts = Number(timestamp);
+  if (Number.isNaN(ts)) {
+    return;
   }
+
+  const ms = ts - performance.now();
+  if (ms <= 0) {
+    return;
+  }
+
+  await wait(ms, signal);
 }
