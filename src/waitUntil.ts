@@ -1,5 +1,5 @@
+import { setTimeoutAsync } from "./utils/setTimeoutAsync";
 import { throwIfAborted } from "./utils/throwIfAborted";
-import { wait } from "./wait";
 
 /**
  * Waits until the specified high-resolution timestamp is reached.
@@ -21,15 +21,8 @@ export async function waitUntil(
     return;
   }
 
-  const ts = Number(timestamp);
-  if (Number.isNaN(ts)) {
-    return;
+  const delay = Number(timestamp) - performance.now();
+  if (!Number.isNaN(delay) && delay > 0) {
+    return setTimeoutAsync(delay, signal);
   }
-
-  const ms = ts - performance.now();
-  if (ms <= 0) {
-    return;
-  }
-
-  await wait(ms, signal);
 }

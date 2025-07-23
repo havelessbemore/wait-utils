@@ -1,3 +1,4 @@
+import { setTimeoutAsync } from "./utils/setTimeoutAsync";
 import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
@@ -23,33 +24,7 @@ export async function wait(
   }
 
   delay = Number(delay);
-  if (Number.isNaN(delay) || delay <= 0) {
-    return;
+  if (!Number.isNaN(delay) && delay > 0) {
+    return setTimeoutAsync(delay, signal);
   }
-
-  if (signal == null) {
-    return new Promise((resolve) => setTimeout(resolve, delay));
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
-
-    const onAbort = () => {
-      clearTimeout(timeoutId);
-      reject(signal.reason);
-    };
-
-    const onResolve = () => {
-      signal.removeEventListener("abort", onAbort);
-      resolve();
-    };
-
-    if (signal.aborted) {
-      reject(signal.reason);
-      return;
-    }
-
-    timeoutId = setTimeout(onResolve, delay);
-    signal.addEventListener("abort", onAbort, { once: true });
-  });
 }
