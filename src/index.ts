@@ -12,6 +12,11 @@ export { timeout } from "./timeout";
 
 export { wait } from "./wait";
 
-export { waitFor, type WaitForOptions } from "./waitFor";
+export {
+  type OnRetryCallback,
+  waitFor,
+  type WaitForCallback,
+  type WaitForOptions,
+} from "./waitFor";
 
 export { waitUntil } from "./waitUntil";

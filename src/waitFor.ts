@@ -1,35 +1,75 @@
 import { RetryError } from "./errors/retryError";
-import { timeout as timeoutFn } from "./timeout";
+import { timeout } from "./timeout";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type TimeoutError } from "./errors/timeoutError";
 import { or } from "./utils/or";
 import { isFunction } from "./utils/isFunction";
+import { setTimeoutAsync } from "./utils/setTimeoutAsync";
 import { throwIfAborted } from "./utils/throwIfAborted";
-import { wait } from "./wait";
+
+/**
+ * A callback invoked before each retry attempt in {@link waitFor}. Can be asynchronous.
+ *
+ * If the callback returns `false`, the wait will be aborted and a
+ * {@link RetryError} will be thrown. Returning any other value
+ * will continue the wait.
+ *
+ * @typeParam T - Type of optional context passed in {@link WaitForOptions}.
+ *
+ * @param delay - The time to wait before the next retry attempt, in milliseconds.
+ * @param attempt - The current attempt number, starting at `1`.
+ * @param context - The context value passed in {@link WaitForOptions}.
+ *
+ * @returns `false` to cancel the retry and throw a {@link RetryError}, otherwise continue.
+ */
+export type OnRetryCallback<T = undefined> = (
+  delay: number,
+  attempt: number,
+  context: T,
+) => boolean | void | Promise<boolean | void>;
+
+/**
+ * A callback to determine the delay (in milliseconds)
+ * before the next retry attempt. Can be asynchronous.
+ *
+ * @template T - Type of optional context passed in {@link WaitForOptions}.
+ *
+ * @param prevDelay - The previous delay, or `undefined` for the first call.
+ * @param attempt - The current attempt number, starting at `1`.
+ * @param context - The context value passed in {@link WaitForOptions}.
+ *
+ * @returns A delay in milliseconds to wait. A value ≤ `0` will resolve the wait immediately.
+ */
+export type WaitForCallback<T = undefined> = (
+  prevDelay: number | undefined,
+  attempt: number,
+  context: T,
+) => number | Promise<number>;
 
 /**
  * Optional settings that control the behavior of a {@link waitFor} operation.
  */
-export interface WaitForOptions {
+export interface WaitForOptions<T = undefined> {
   /**
-   * An `AbortSignal` that allows the wait to be cancelled early.
-   *
-   * If the signal is already aborted or is aborted before the wait completes,
-   * an `AbortError` is thrown.
+   * Shared context passed to both `callbackfn` and `onRetry`.
+   * Useful for providing additional data or state.
    */
-  signal?: AbortSignal;
+  context?: T;
 
   /**
-   * A callback invoked before each retry.
+   * A callback invoked before each retry attempt. Can be asynchronous.
    *
-   * Receives the time to wait before the operation will be retried,
-   * in milliseconds. If the callback returns `false`, the wait will be
-   * aborted and a {@link RetryError} will be thrown.
-   *
-   * @param ms The time to wait for the next retry attempt, in milliseconds.
-   * @returns `false` to cancel the retry. Any other value continues retrying.
+   * Use this to log, track, or control retry behavior dynamically.
+   * The callback receives the `delay` before the next attempt,
+   * the current `attempt` number (starting at 1), and `context` (if provided).
+   * If `false` is returned, a {@link RetryError} is thrown.
    */
-  onRetry?: (ms: number) => boolean | void | Promise<boolean | void>;
+  onRetry?: OnRetryCallback<T>;
+
+  /**
+   * An `AbortSignal` to cancel waiting and throw an `AbortError`.
+   */
+  signal?: AbortSignal;
 
   /**
    * Maximum total duration to wait before timing out, in milliseconds.
@@ -41,86 +81,84 @@ export interface WaitForOptions {
 }
 
 /**
- * Waits repeatedly using a delay function to control retry logic.
+ * Waits in a loop using fixed or dynamic backoff.
  *
- * The callback is invoked before each retry to determine how long to wait
- * (in milliseconds). When it returns a value ≤ 0, the wait ends and
- * the function resolves.
+ * The loops repeats until the wait is cancelled or the callback (if provided) returns a value ≤ 0.
  *
- * Supports cancellation via `AbortSignal`, timeouts, and custom retry behavior.
+ * @template T - Type of optional context passed in {@link WaitForOptions}.
  *
- * @param callbackfn A function that returns the time to wait (in ms).
- *                     Return a value ≤ 0 to stop waiting and resolve.
+ * @param delayOrCallback - Fixed delay in ms or a function returning the dynamic delay.
  *
- * @param options Optional controls:
- *   - `signal`: aborts the wait early and throws `AbortError`.
- *   - `timeout`: maximum total time to wait before throwing {@link TimeoutError}.
- *   - `onRetry`: called before each retry; returning `false` throws {@link RetryError}.
+ * @param options - Optional settings. See {@link WaitForOptions}.
  *
- * @returns A promise that resolves after waiting completes, or rejects if cancelled.
+ * @returns A promise that:
+ * - resolves when callaback returns ≤ 0,
+ *  - rejects with `AbortError`, {@link RetryError}, or {@link TimeoutError} depending on the cancel condition.
  *
- * @throws An `AbortError` If the operation is aborted via `AbortSignal`.
- * @throws A {@link RetryError} If the `onRetry` callback returns `false`.
- * @throws A {@link TimeoutError} If the wait exceeds the given timeout.
+ * @throws A {@link RetryError} if `onRetry` returns `false`.
+ * @throws A {@link TimeoutError} if the total wait exceeds the given timeout.
+ * @throws An {@link AbortError} if `signal` is aborted before completion.
+ *
+ * @example
+ * ```ts
+ * await waitFor(
+ *   (prevDelay, attempt, ctx) => {
+ *     if (attempt > 5) return 0; // stop after 5 retries
+ *     return prevDelay ? prevDelay * 2 : 100; // initial delay 100 ms, then exponential
+ *   },
+ *   {
+ *     context: { task: "my-task" },
+ *     onRetry: (delay, attempt, ctx) => {
+ *       console.log(`Retry ${attempt}: waiting ${delay}ms for ${ctx.task}`);
+ *     },
+ *     timeout: 10000
+ *   }
+ * );
+ * ```
  */
-export function waitFor(
-  callbackfn: () => number | Promise<number>,
-  options?: WaitForOptions,
-): Promise<void>;
-/**
- * Waits repeatedly using a fixed delay until a stop condition is
- * met via options.
- *
- * When used with a static delay, this behaves like `setTimeout` with
- * optional cancellation and timeout support. If paired with `onRetry`,
- * it behaves like a fixed-interval poller.
- *
- * @param delay - A fixed delay in milliseconds to wait between retries.
- *
- * @param options - Optional controls:
- *   - `signal`: aborts the wait early and throws `AbortError`.
- *   - `timeout`: maximum total time to wait before throwing {@link TimeoutError}.
- *   - `onRetry`: called before each retry; returning `false` throws {@link RetryError}.
- *
- * @returns A promise that resolves after the wait completes, or rejects if cancelled.
- *
- * @throws An `AbortError` If the operation is aborted via the provided `AbortSignal`.
- * @throws A {@link RetryError} If the `onRetry` callback returns `false`.
- * @throws A {@link TimeoutError} If the wait exceeds the given timeout.
- */
-export function waitFor(delay: number, options?: WaitForOptions): Promise<void>;
 export async function waitFor(
-  delayOrFn: number | (() => number | Promise<number>),
-  { signal, onRetry, timeout }: WaitForOptions = {},
+  delayOrCallback: number | WaitForCallback,
+  options: WaitForOptions = {},
 ): Promise<void> {
-  throwIfAborted(signal);
+  throwIfAborted(options.signal);
 
-  const callbackfn = isFunction(delayOrFn) ? delayOrFn : () => delayOrFn;
-  let combinedSignal = signal;
-  let timeoutController: AbortController | undefined = undefined;
+  const { context, onRetry, timeout: timeoutMs } = options;
+  const callback = isFunction(delayOrCallback)
+    ? delayOrCallback
+    : () => delayOrCallback;
+  let signal = options.signal;
 
-  const mainLoop = async () => {
-    try {
-      throwIfAborted(combinedSignal);
-      let ms = await callbackfn();
-      while (ms > 0) {
-        throwIfAborted(combinedSignal);
-        if ((await onRetry?.(ms)) === false) {
-          throw new RetryError();
-        }
-        await wait(ms, combinedSignal);
-        ms = await callbackfn();
+  const main = async () => {
+    throwIfAborted(signal);
+
+    let ms: number | undefined = undefined;
+    // eslint-disable-next-line no-constant-condition
+    for (let attempt = 1; true; ++attempt) {
+      ms = await callback(ms, attempt, context);
+
+      throwIfAborted(signal);
+      if (!(ms > 0)) {
+        break;
       }
-    } finally {
-      timeoutController?.abort();
+
+      const response = await onRetry?.(ms, attempt, context);
+      if (response === false) {
+        throw new RetryError();
+      }
+
+      await setTimeoutAsync(ms, signal);
     }
   };
 
-  if (timeout == null) {
-    return mainLoop();
+  let promise = main();
+  if (timeoutMs != null) {
+    const timeoutController = new AbortController();
+    signal = or(signal, timeoutController.signal);
+    const timeoutPromise = timeout(timeoutMs, signal);
+    promise = Promise.race([promise, timeoutPromise]).finally(() =>
+      timeoutController.abort(),
+    );
   }
 
-  timeoutController = new AbortController();
-  combinedSignal = or(signal, timeoutController.signal);
-  return Promise.race([timeoutFn(timeout, combinedSignal), mainLoop()]);
+  await promise;
 }
