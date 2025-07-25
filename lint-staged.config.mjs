@@ -11,6 +11,6 @@ export default {
     // Run linter
     "eslint",
     // Run tests
-    "cross-env NODE_ENV=test jest --bail --findRelatedTests",
+    "cross-env NODE_ENV=test jest --bail --findRelatedTests --runInBand",
   ],
 };

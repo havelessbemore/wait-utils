@@ -40,7 +40,7 @@ jsr add @rojas/wait-utils
 
 ## API
 
-### `timeout(delay?: number, signal?: AbortSignal): Promise<void>`
+### `timeout(delay?, signal?): Promise<void>`
 
 Rejects with a `TimeoutError` after the specified delay, unless cancelled by an `AbortSignal`.
 
@@ -78,7 +78,7 @@ try {
 }
 ```
 
-### `wait(delay?, signal?)`
+### `wait(delay?, signal?): Promise<void>`
 
 Waits for a given number of milliseconds, unless cancelled by an `AbortSignal`.
 
@@ -112,7 +112,7 @@ wait(5000, controller.signal).catch((err) => {
 controller.abort(); // cancels the wait
 ```
 
-### `waitFor(callback | delay, options?)`
+### `waitFor(delay | callback, options?): Promise<void>`
 
 Repeats a wait until a condition resolves or aborts
 
@@ -163,7 +163,7 @@ import { waitFor } from "wait-utils";
 await waitFor(() => (Math.random() < 0.2 ? 0 : 100));
 ```
 
-### `waitUntil(timestamp?, signal?)`
+### `waitUntil(timestamp?, signal?): Promise<void>`
 
 Waits until the given `performance.now()` timestamp is reached, unless canceled by an `AbortSignal`.
 
