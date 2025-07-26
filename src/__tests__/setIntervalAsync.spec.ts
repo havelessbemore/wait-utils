@@ -1,4 +1,4 @@
-import { setIntervalAsync } from "src/utils/setIntervalAsync";
+import { setIntervalAsync } from "src/setIntervalAsync";
 
 describe(setIntervalAsync.name, () => {
   beforeAll(() => {
