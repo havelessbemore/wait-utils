@@ -2,7 +2,7 @@
  * Asynchronously delays execution for the specified duration.
  *
  * @param delay - The number of milliseconds to wait.
- * @param signal - Optional `AbortSignal` that can cancel the wait early.
+ * @param signal - An `AbortSignal` that can cancel the wait early.
  *
  * @returns A promise that resolves after the delay, or rejects with
  *          the `signal.reason` if `signal` is aborted before timeout.
@@ -20,14 +20,17 @@
  * ```
  */
 export function setTimeoutAsync(
-  delay: number,
+  delay?: number,
   signal?: AbortSignal,
 ): Promise<void> {
   if (signal == null) {
     return new Promise((resolve) => setTimeout(resolve, delay));
   }
   return new Promise<void>((resolve, reject) => {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+    if (signal.aborted) {
+      reject(signal.reason);
+      return;
+    }
 
     const onAbort = () => {
       clearTimeout(timeoutId);
@@ -39,12 +42,7 @@ export function setTimeoutAsync(
       resolve();
     };
 
-    if (signal.aborted) {
-      reject(signal.reason);
-      return;
-    }
-
-    timeoutId = setTimeout(onResolve, delay);
+    const timeoutId = setTimeout(onResolve, delay);
     signal.addEventListener("abort", onAbort, { once: true });
   });
 }
