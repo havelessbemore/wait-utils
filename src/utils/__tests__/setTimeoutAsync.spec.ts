@@ -84,6 +84,12 @@ describe(setTimeoutAsync.name, () => {
     await expect(promise).rejects.toBe("mid-wait abort");
   });
 
+  it("resolves immediately for undefined delay", async () => {
+    const promise = setTimeoutAsync(undefined);
+    await jest.advanceTimersByTimeAsync(0);
+    await expect(promise).resolves.toBeUndefined();
+  });
+
   it("resolves immediately for zero delay", async () => {
     const promise = setTimeoutAsync(0);
     await jest.advanceTimersByTimeAsync(0);
