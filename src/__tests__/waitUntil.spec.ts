@@ -1,8 +1,8 @@
-import { waitUntil } from "src/waitUntil";
-import { setTimeoutAsync } from "src/utils/setTimeoutAsync";
+import { setTimeoutAsync } from "src/setTimeoutAsync";
 import { throwIfAborted } from "src/utils/throwIfAborted";
+import { waitUntil } from "src/waitUntil";
 
-jest.mock("src/utils/setTimeoutAsync");
+jest.mock("src/setTimeoutAsync");
 jest.mock("src/utils/throwIfAborted");
 
 describe(waitUntil.name, () => {

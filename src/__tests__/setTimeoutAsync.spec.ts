@@ -1,4 +1,4 @@
-import { setTimeoutAsync } from "src/utils/setTimeoutAsync";
+import { setTimeoutAsync } from "src/setTimeoutAsync";
 
 describe(setTimeoutAsync.name, () => {
   beforeAll(() => {

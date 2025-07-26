@@ -1,4 +1,4 @@
-import { setTimeoutAsync } from "./utils/setTimeoutAsync";
+import { setTimeoutAsync } from "./setTimeoutAsync";
 import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
