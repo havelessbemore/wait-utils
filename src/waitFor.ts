@@ -4,7 +4,7 @@ import { timeout } from "./timeout";
 import { type TimeoutError } from "./errors/timeoutError";
 import { or } from "./utils/or";
 import { isFunction } from "./utils/isFunction";
-import { setTimeoutAsync } from "./utils/setTimeoutAsync";
+import { setTimeoutAsync } from "./setTimeoutAsync";
 import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
