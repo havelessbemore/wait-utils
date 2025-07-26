@@ -4,6 +4,8 @@ export { RetryError } from "./errors/retryError";
 
 export { TimeoutError } from "./errors/timeoutError";
 
+export { setTimeoutAsync } from "./setTimeoutAsync";
+
 export { timeout } from "./timeout";
 
 export { wait } from "./wait";
