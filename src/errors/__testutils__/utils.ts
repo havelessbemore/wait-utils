@@ -1,4 +1,3 @@
-import { RetryError } from "src/errors/retryError";
 import { TimeoutError } from "src/errors/timeoutError";
 
 export function expectNativeAbortError(value: unknown) {
@@ -7,12 +6,8 @@ export function expectNativeAbortError(value: unknown) {
   expect((value as DOMException).message).toBe("This operation was aborted");
 }
 
-export function expectRetryError(value: unknown) {
-  expect(value).toBeInstanceOf(RetryError);
-  expect(value).toHaveProperty("name", "RetryError");
-}
-
 export function expectTimeoutError(value: unknown) {
   expect(value).toBeInstanceOf(TimeoutError);
   expect(value).toHaveProperty("name", "TimeoutError");
+  expect(value).toHaveProperty("message", "This operation was timed out");
 }

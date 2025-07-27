@@ -27,7 +27,7 @@ export default defineConfig([
   {
     // Define global ignores. Must be used without
     // any other keys in the configuration object.
-    ignores: ["dist", "package-lock.json", "tsconfig.json"],
+    ignores: ["dist", "docs", "package-lock.json", "tsconfig.json"],
   },
   // Apply JavaScript rules
   {
