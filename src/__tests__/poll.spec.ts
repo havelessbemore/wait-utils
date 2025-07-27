@@ -4,9 +4,9 @@ import {
 } from "src/errors/__testutils__/utils";
 import * as setIntervalAsyncModule from "src/setIntervalAsync";
 import * as timeoutModule from "src/timeout";
-import { waitFor } from "src/waitFor";
+import { poll } from "src/poll";
 
-describe(waitFor.name, () => {
+describe(poll.name, () => {
   let setIntervalAsyncSpy: jest.SpiedFunction<
     typeof setIntervalAsyncModule.setIntervalAsync
   >;
@@ -36,7 +36,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async (ctx) => {
         ctx.stop = ctx.attempt >= 10;
       });
-      const promise = waitFor(callback, { delay: 10 });
+      const promise = poll(callback, { delay: 10 });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.not.toThrow();
       expect(callback).toHaveBeenCalledTimes(10);
@@ -44,7 +44,7 @@ describe(waitFor.name, () => {
 
     it("rejects if callback throws synchronously", async () => {
       const error = new Error("sync error");
-      const promise = waitFor(
+      const promise = poll(
         () => {
           throw error;
         },
@@ -57,7 +57,7 @@ describe(waitFor.name, () => {
 
     it("rejects if callback throws asynchronously", async () => {
       const error = new Error("async error");
-      const promise = waitFor(
+      const promise = poll(
         async () => {
           throw error;
         },
@@ -75,9 +75,9 @@ describe(waitFor.name, () => {
 
       let count = 0;
       const cb = () => ++count;
-      const inter1 = waitFor(cb, { delay: 200, signal: ac1.signal });
-      const inter2 = waitFor(cb, { delay: 400, signal: ac2.signal });
-      const inter3 = waitFor(cb, { delay: 1000, signal: ac3.signal });
+      const inter1 = poll(cb, { delay: 200, signal: ac1.signal });
+      const inter2 = poll(cb, { delay: 400, signal: ac2.signal });
+      const inter3 = poll(cb, { delay: 1000, signal: ac3.signal });
 
       await jest.advanceTimersByTimeAsync(199);
       expect(count).toBe(0);
@@ -107,7 +107,7 @@ describe(waitFor.name, () => {
         ctx.stop = ctx.attempt >= 10;
         return ctx.attempt;
       });
-      const promise = waitFor(callback, { delay: 10 });
+      const promise = poll(callback, { delay: 10 });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBe(10);
       expect(callback).toHaveBeenCalledTimes(10);
@@ -124,7 +124,7 @@ describe(waitFor.name, () => {
         }
         ctx.stop = ctx.attempt >= 10;
       });
-      const promise = waitFor(callback, { delay: 10 });
+      const promise = poll(callback, { delay: 10 });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.not.toThrow();
       expect(callback).toHaveBeenCalledTimes(10);
@@ -137,7 +137,7 @@ describe(waitFor.name, () => {
         ctx.stop = true;
         return ctx.attempt;
       });
-      const promise = waitFor(callback, { delay: 10 });
+      const promise = poll(callback, { delay: 10 });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBe(1);
       expect(callback).toHaveBeenCalledTimes(1);
@@ -150,7 +150,7 @@ describe(waitFor.name, () => {
         expect(ctx.attempt).toBe(attempt);
         ctx.stop = ctx.attempt >= 10;
       });
-      const promise = waitFor(callback, { delay: 10 });
+      const promise = poll(callback, { delay: 10 });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.not.toThrow();
       expect(callback).toHaveBeenCalledTimes(10);
@@ -168,7 +168,7 @@ describe(waitFor.name, () => {
         expect(ctx.attempt).toBe(attempt);
         ctx.stop = ctx.attempt >= 10;
       });
-      const promise = waitFor(callback, { delay: 10 });
+      const promise = poll(callback, { delay: 10 });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.not.toThrow();
       expect(callback).toHaveBeenCalledTimes(10);
@@ -180,15 +180,15 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async (ctx) => {
         expect(ctx.delay).toBeUndefined();
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.delay).toBeUndefined();
         ctx.stop = true;
       });
-      const promise = waitFor(callback, { onAttempt });
+      const promise = poll(callback, { afterPoll });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(1);
+      expect(afterPoll).toHaveBeenCalledTimes(1);
     });
 
     it("should initialize context.delay to options.delay", async () => {
@@ -196,15 +196,15 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async (ctx) => {
         expect(ctx.delay).toBe(delay);
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.delay).toBe(delay);
         ctx.stop = true;
       });
-      const promise = waitFor(callback, { delay, onAttempt });
+      const promise = poll(callback, { delay, afterPoll });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(1);
+      expect(afterPoll).toHaveBeenCalledTimes(1);
     });
 
     it("should be able to change context.delay from the callback", async () => {
@@ -214,11 +214,11 @@ describe(waitFor.name, () => {
         delay += 10;
         ctx.delay = delay;
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.delay).toBe(delay);
         ctx.stop = ctx.delay > 100;
       });
-      const promise = waitFor(callback, { delay, onAttempt });
+      const promise = poll(callback, { delay, afterPoll });
       await jest.advanceTimersByTimeAsync(550);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(10);
@@ -229,13 +229,13 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async (ctx) => {
         expect(ctx.delay).toBe(delay);
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.delay).toBe(delay);
         delay += 10;
         ctx.delay = delay;
         ctx.stop = ctx.delay > 100;
       });
-      const promise = waitFor(callback, { delay, onAttempt });
+      const promise = poll(callback, { delay, afterPoll });
       await jest.advanceTimersByTimeAsync(550);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(10);
@@ -248,7 +248,7 @@ describe(waitFor.name, () => {
         ctx.stop = ctx.attempt >= 10;
         return "try-2";
       });
-      const promise = waitFor(callback, { delay: 10 });
+      const promise = poll(callback, { delay: 10 });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toEqual("try-2");
       expect(callback).toHaveBeenCalledTimes(10);
@@ -258,10 +258,10 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async () => {
         return "try-2";
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         ctx.stop = ctx.attempt >= 10;
       });
-      const promise = waitFor(callback, { delay: 10, onAttempt });
+      const promise = poll(callback, { delay: 10, afterPoll });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toEqual("try-2");
       expect(callback).toHaveBeenCalledTimes(10);
@@ -273,15 +273,15 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async (ctx) => {
         expect(ctx.userData).toBeUndefined();
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.userData).toBeUndefined();
         ctx.stop = true;
       });
-      const promise = waitFor(callback, { onAttempt });
+      const promise = poll(callback, { afterPoll });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(1);
+      expect(afterPoll).toHaveBeenCalledTimes(1);
     });
 
     it("should initialize context.userData to options.userData", async () => {
@@ -289,15 +289,15 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async (ctx) => {
         expect(ctx.userData).toBe(userData);
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.userData).toBe(userData);
         ctx.stop = true;
       });
-      const promise = waitFor(callback, { onAttempt, userData });
+      const promise = poll(callback, { afterPoll, userData });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(1);
+      expect(afterPoll).toHaveBeenCalledTimes(1);
     });
 
     it("should be able to change context.userData from the callback", async () => {
@@ -306,15 +306,15 @@ describe(waitFor.name, () => {
         expect(ctx.userData).toBe(userDatas[ctx.attempt]);
         ctx.userData = userDatas[ctx.attempt + 1];
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.userData).toBe(userDatas[ctx.attempt + 1]);
         ctx.stop = ctx.attempt >= 3;
       });
-      const promise = waitFor(callback, { onAttempt, userData: userDatas[1] });
+      const promise = poll(callback, { afterPoll, userData: userDatas[1] });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(3);
-      expect(onAttempt).toHaveBeenCalledTimes(3);
+      expect(afterPoll).toHaveBeenCalledTimes(3);
     });
 
     it("should be able to change context.userData from onAttempt", async () => {
@@ -322,16 +322,16 @@ describe(waitFor.name, () => {
       const callback = jest.fn(async (ctx) => {
         expect(ctx.userData).toBe(userDatas[ctx.attempt]);
       });
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         expect(ctx.userData).toBe(userDatas[ctx.attempt]);
         ctx.userData = userDatas[ctx.attempt + 1];
         ctx.stop = ctx.attempt >= 3;
       });
-      const promise = waitFor(callback, { onAttempt, userData: userDatas[1] });
+      const promise = poll(callback, { afterPoll, userData: userDatas[1] });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(3);
-      expect(onAttempt).toHaveBeenCalledTimes(3);
+      expect(afterPoll).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -340,7 +340,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn();
       const controller = new AbortController();
 
-      const promise = waitFor(callback, {
+      const promise = poll(callback, {
         delay: undefined,
         signal: controller.signal,
       });
@@ -359,7 +359,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn();
       const controller = new AbortController();
 
-      const promise = waitFor(callback, {
+      const promise = poll(callback, {
         delay: null,
         signal: controller.signal,
       });
@@ -378,7 +378,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn();
       const controller = new AbortController();
 
-      const promise = waitFor(callback, {
+      const promise = poll(callback, {
         delay: 0,
         signal: controller.signal,
       });
@@ -397,7 +397,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn();
       const controller = new AbortController();
 
-      const promise = waitFor(callback, {
+      const promise = poll(callback, {
         delay: -10,
         signal: controller.signal,
       });
@@ -416,7 +416,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn();
       const controller = new AbortController();
 
-      const promise = waitFor(callback, {
+      const promise = poll(callback, {
         delay: 100,
         signal: controller.signal,
       });
@@ -430,17 +430,91 @@ describe(waitFor.name, () => {
     });
   });
 
-  describe("options.onAttempt", () => {
+  describe("options.initialDelay", () => {
+    it("waits `initialDelay` before first attempt", async () => {
+      const callback = jest.fn((ctx) => {
+        ctx.stop = ctx.attempt >= 2;
+      });
+
+      const promise = poll(callback, {
+        delay: 10,
+        initialDelay: 50,
+      });
+
+      expect(callback).not.toHaveBeenCalled();
+      await jest.advanceTimersByTimeAsync(49);
+      expect(callback).not.toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(1);
+      expect(callback).toHaveBeenCalledTimes(1);
+
+      await jest.advanceTimersByTimeAsync(10);
+      expect(callback).toHaveBeenCalledTimes(2);
+
+      await promise;
+    });
+
+    it("falls back to `delay` if `initialDelay` not provided", async () => {
+      const callback = jest.fn((ctx) => {
+        ctx.stop = ctx.attempt >= 2;
+      });
+
+      const promise = poll(callback, { delay: 10 });
+
+      expect(callback).not.toHaveBeenCalled();
+      await jest.advanceTimersByTimeAsync(9);
+      expect(callback).not.toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(10);
+      expect(callback).toHaveBeenCalledTimes(1);
+
+      await jest.advanceTimersByTimeAsync(10);
+      expect(callback).toHaveBeenCalledTimes(2);
+
+      await promise;
+    });
+
+    it("runs immediately if `initialDelay` = 0", async () => {
+      const callback = jest.fn((ctx) => {
+        ctx.stop = true;
+      });
+
+      const promise = poll(callback, {
+        initialDelay: 0,
+        delay: 1000,
+      });
+
+      await jest.advanceTimersByTimeAsync(0);
+      expect(callback).toHaveBeenCalledTimes(1);
+
+      await promise;
+    });
+
+    it("runs immediately if `initialDelay` and `delay` are undefined", async () => {
+      const callback = jest.fn((ctx) => {
+        ctx.stop = true;
+      });
+
+      const promise = poll(callback);
+
+      await jest.advanceTimersByTimeAsync(0);
+      expect(callback).toHaveBeenCalledTimes(1);
+
+      await promise;
+    });
+  });
+
+  describe("options.afterPoll", () => {
     it("should invoke onAttempt repeatedly", async () => {
       const callback = jest.fn();
-      const onAttempt = jest.fn(async (ctx) => {
+      const afterPoll = jest.fn(async (ctx) => {
         ctx.stop = ctx.attempt >= 10;
       });
-      const promise = waitFor(callback, { delay: 10, onAttempt });
+      const promise = poll(callback, { delay: 10, afterPoll });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.not.toThrow();
       expect(callback).toHaveBeenCalledTimes(10);
-      expect(onAttempt).toHaveBeenCalledTimes(10);
+      expect(afterPoll).toHaveBeenCalledTimes(10);
     });
 
     it("should invoke onAttempt after callback", async () => {
@@ -449,43 +523,43 @@ describe(waitFor.name, () => {
         order.push("c");
         ctx.stop = ctx.attempt >= 3;
       });
-      const onAttempt = jest.fn(async () => {
+      const afterPoll = jest.fn(async () => {
         order.push("b");
       });
-      const promise = waitFor(callback, { delay: 10, onAttempt });
+      const promise = poll(callback, { delay: 10, afterPoll });
       await jest.advanceTimersByTimeAsync(200);
       await expect(promise).resolves.not.toThrow();
       expect(callback).toHaveBeenCalledTimes(3);
-      expect(onAttempt).toHaveBeenCalledTimes(2);
+      expect(afterPoll).toHaveBeenCalledTimes(2);
       expect(order).toEqual(["c", "b", "c", "b", "c"]);
     });
 
     it("rejects if onAttempt throws synchronously", async () => {
       const callback = jest.fn();
       const error = new Error("sync error");
-      const onAttempt = jest.fn(() => {
+      const afterPoll = jest.fn(() => {
         throw error;
       });
-      const promise = waitFor(callback, { delay: 50, onAttempt });
+      const promise = poll(callback, { delay: 50, afterPoll });
 
       jest.advanceTimersByTime(50);
       await expect(promise).rejects.toBe(error);
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(1);
+      expect(afterPoll).toHaveBeenCalledTimes(1);
     });
 
     it("rejects if onAttempt throws asynchronously", async () => {
       const callback = jest.fn();
       const error = new Error("sync error");
-      const onAttempt = jest.fn(async () => {
+      const afterPoll = jest.fn(async () => {
         throw error;
       });
-      const promise = waitFor(callback, { delay: 50, onAttempt });
+      const promise = poll(callback, { delay: 50, afterPoll });
 
       jest.advanceTimersByTime(50);
       await expect(promise).rejects.toBe(error);
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(1);
+      expect(afterPoll).toHaveBeenCalledTimes(1);
     });
 
     it("does not call onAttempt if callback throws", async () => {
@@ -493,26 +567,26 @@ describe(waitFor.name, () => {
       const callback = jest.fn(() => {
         throw error;
       });
-      const onAttempt = jest.fn();
-      const promise = waitFor(callback, { delay: 50, onAttempt });
+      const afterPoll = jest.fn();
+      const promise = poll(callback, { delay: 50, afterPoll });
 
       jest.advanceTimersByTime(50);
       await expect(promise).rejects.toThrow("fail");
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(0);
+      expect(afterPoll).toHaveBeenCalledTimes(0);
     });
 
     it("does not call onAttempt if callback stops", async () => {
       const callback = jest.fn((ctx) => {
         ctx.stop = true;
       });
-      const onAttempt = jest.fn();
-      const promise = waitFor(callback, { delay: 50, onAttempt });
+      const afterPoll = jest.fn();
+      const promise = poll(callback, { delay: 50, afterPoll });
 
       jest.advanceTimersByTime(50);
       await expect(promise).resolves.not.toThrow();
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(0);
+      expect(afterPoll).toHaveBeenCalledTimes(0);
     });
 
     it("does not call onAttempt if callback aborts", async () => {
@@ -521,28 +595,28 @@ describe(waitFor.name, () => {
       const callback = jest.fn(() => {
         controller.abort("aborted");
       });
-      const onAttempt = jest.fn();
-      const promise = waitFor(callback, { delay: 50, onAttempt, signal });
+      const afterPoll = jest.fn();
+      const promise = poll(callback, { delay: 50, afterPoll, signal });
 
       jest.advanceTimersByTime(50);
       await expect(promise).rejects.toBe("aborted");
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(onAttempt).toHaveBeenCalledTimes(0);
+      expect(afterPoll).toHaveBeenCalledTimes(0);
     });
   });
 
   describe("options.signal", () => {
     it("immediately rejects if signal is already aborted", async () => {
       const callback = jest.fn();
-      const onAttempt = jest.fn();
+      const afterPoll = jest.fn();
       const controller = new AbortController();
       controller.abort("early-abort");
 
       const spy = jest.spyOn(controller.signal, "addEventListener");
-      const promise = waitFor(callback, { signal: controller.signal });
+      const promise = poll(callback, { signal: controller.signal });
       await expect(promise).rejects.toBe("early-abort");
       expect(callback).toHaveBeenCalledTimes(0);
-      expect(onAttempt).toHaveBeenCalledTimes(0);
+      expect(afterPoll).toHaveBeenCalledTimes(0);
       expect(setIntervalAsyncSpy).not.toHaveBeenCalled();
       expect(timeoutSpy).not.toHaveBeenCalled();
       expect(spy).not.toHaveBeenCalled();
@@ -559,11 +633,11 @@ describe(waitFor.name, () => {
           controller.abort(error);
         }
       });
-      const onAttempt = jest.fn();
-      const promise = waitFor(callback, { delay: 10, onAttempt, signal });
+      const afterPoll = jest.fn();
+      const promise = poll(callback, { delay: 10, afterPoll, signal });
       await expect(promise).rejects.toThrow("aborted");
       expect(callback).toHaveBeenCalledTimes(5);
-      expect(onAttempt).toHaveBeenCalledTimes(4);
+      expect(afterPoll).toHaveBeenCalledTimes(4);
     });
 
     it("rejects if signal is aborted in onAttempt", async () => {
@@ -572,38 +646,38 @@ describe(waitFor.name, () => {
       const controller = new AbortController();
       const signal = controller.signal;
       const callback = jest.fn();
-      const onAttempt = jest.fn((ctx) => {
+      const afterPoll = jest.fn((ctx) => {
         if (ctx.attempt >= 5) {
           controller.abort(error);
         }
       });
-      const promise = waitFor(callback, { delay: 10, onAttempt, signal });
+      const promise = poll(callback, { delay: 10, afterPoll, signal });
       await expect(promise).rejects.toThrow("aborted");
       expect(callback).toHaveBeenCalledTimes(5);
-      expect(onAttempt).toHaveBeenCalledTimes(5);
+      expect(afterPoll).toHaveBeenCalledTimes(5);
     });
 
     it("rejects if signal is aborted during execution", async () => {
       const callback = jest.fn();
       const controller = new AbortController();
-      const onAttempt = jest.fn();
-      const promise = waitFor(callback, {
+      const afterPoll = jest.fn();
+      const promise = poll(callback, {
         delay: 10,
-        onAttempt,
+        afterPoll,
         signal: controller.signal,
       });
       await jest.advanceTimersByTimeAsync(50);
       controller.abort("abort");
       await expect(promise).rejects.toBe("abort");
       expect(callback).toHaveBeenCalledTimes(5);
-      expect(onAttempt).toHaveBeenCalledTimes(5);
+      expect(afterPoll).toHaveBeenCalledTimes(5);
     });
   });
 
   describe("options.timeout", () => {
     it("throws TimeoutError if timeout is exceeded", async () => {
       const callback = jest.fn();
-      const promise = waitFor(callback, { delay: 100, timeout: 150 });
+      const promise = poll(callback, { delay: 100, timeout: 150 });
       try {
         jest.advanceTimersByTime(200);
         await promise;
@@ -617,7 +691,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn((ctx) => {
         ctx.stop = true;
       });
-      const promise = waitFor(callback, { delay: 101, timeout: 100 });
+      const promise = poll(callback, { delay: 101, timeout: 100 });
       try {
         jest.advanceTimersByTime(150);
         await promise;
@@ -631,7 +705,7 @@ describe(waitFor.name, () => {
       const callback = jest.fn((ctx) => {
         ctx.stop = true;
       });
-      const promise = waitFor(callback, { delay: 100, timeout: 101 });
+      const promise = poll(callback, { delay: 100, timeout: 101 });
       jest.advanceTimersByTime(150);
       await expect(promise).resolves.toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(1);
@@ -645,7 +719,7 @@ describe(waitFor.name, () => {
         controller.abort();
       });
       try {
-        await waitFor(callback, { delay: 101, signal, timeout: 100 });
+        await poll(callback, { delay: 101, signal, timeout: 100 });
       } catch (error) {
         expectTimeoutError(error);
       }
@@ -656,7 +730,7 @@ describe(waitFor.name, () => {
       const controller = new AbortController();
       const signal = controller.signal;
       const callback = jest.fn();
-      const promise = waitFor(callback, { delay: 100, signal, timeout: 150 });
+      const promise = poll(callback, { delay: 100, signal, timeout: 150 });
       try {
         jest.advanceTimersByTime(125);
         controller.abort();

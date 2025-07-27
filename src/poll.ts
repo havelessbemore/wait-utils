@@ -1,39 +1,40 @@
 import { IntervalContext, setIntervalAsync } from "./setIntervalAsync";
 import { timeout } from "./timeout";
+import { hasOwnProperty } from "./utils/hasOwnProperty";
 import { or } from "./utils/or";
 import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
- * A hook invoked after each successful callback execution in {@link waitFor}.
+ * A hook invoked after each successful callback execution in {@link poll}.
  *
  * Can be used for logging, adjusting the next delay, or stopping the wait loop.
  *
  * This is skipped if the callback stops the wait or throws.
  *
- * @param context - The current {@link WaitForContext}.
+ * @param context - The current {@link PollContext}.
  */
-export type OnAttemptCallback<T = unknown> = (
-  context: WaitForContext<T>,
+export type AfterPollCallback<T = unknown> = (
+  context: PollContext<T>,
 ) => unknown | Promise<unknown>;
 
 /**
- * The main function invoked at each iteration in {@link waitFor}.
+ * The main function invoked at each iteration in {@link poll}.
  *
  * This function performs the primary asynchronous operation.
  * To stop further attempts, set `context.stop = true`.
  *
- * @param context - The current {@link WaitForContext}.
+ * @param context - The current {@link PollContext}.
  *
  * @returns A result value, or a Promise that resolves to one.
  */
-export type WaitForCallback<T = unknown, R = unknown> = (
-  context: WaitForContext<T>,
+export type PollCallback<T = unknown, R = unknown> = (
+  context: PollContext<T>,
 ) => R | Promise<R>;
 
 /**
- * Context object in {@link waitFor}.
+ * Context object in {@link poll}.
  */
-export interface WaitForContext<T = unknown> {
+export interface PollContext<T = unknown> {
   /**
    * The current attempt number, starting from `1` and incremented automatically.
    * @readonly
@@ -61,22 +62,28 @@ export interface WaitForContext<T = unknown> {
 }
 
 /**
- * Configuration options for {@link waitFor}.
+ * Configuration options for {@link poll}.
  */
-export interface WaitForOptions<T = unknown> {
+export interface PollOptions<T = unknown> {
   /**
-   * The initial delay (in milliseconds) between iterations.
+   * A function to run after each poll attempt.
    *
-   * Can be changed dynamically via `context.delay`.
+   * Can be used to log results, inspect attempt state, or modify future behavior.
+   */
+  afterPoll?: AfterPollCallback<T>;
+
+  /**
+   * The delay (in milliseconds) between subsequent attempts.
+   *
+   * Can be changed dynamically via {@link PollContext.delay | context.delay}.
    */
   delay?: number | null;
 
   /**
-   * A function to run after each successful callback execution.
-   *
-   * Can be used to log results, inspect attempt state, or modify future behavior.
+   * The delay (in milliseconds) before the first attempt.
+   * If not specified, falls back to {@link delay}.
    */
-  onAttempt?: OnAttemptCallback<T>;
+  initialDelay?: number | null;
 
   /**
    * An {@link AbortSignal} to cancel the wait loop.
@@ -103,7 +110,7 @@ export interface WaitForOptions<T = unknown> {
 /**
  * Repeatedly invokes a callback function until it succeeds, is stopped, aborted, or times out.
  *
- * After each successful callback execution, an optional {@link WaitForOptions.onAttempt}
+ * After each successful callback execution, an optional {@link PollOptions.afterPoll}
  * hook is invoked. You can control retry timing by updating `context.delay` or exit
  * early by setting `context.stop = true`.
  *
@@ -113,20 +120,20 @@ export interface WaitForOptions<T = unknown> {
  * @param callback - The function to invoke on each attempt.
  * @param options - Optional configuration to control timing, retries, and cancellation.
  *
- * @returns The last value returned by the callback, or `undefined` if stopped early.
+ * @returns The last value returned by the callback.
  *
  * @throws `AbortError` if the operation is cancelled using `signal`.
  * @throws `TimeoutError` if the total wait duration exceeds `timeout`.
  */
-export async function waitFor<T, R>(
-  callback: WaitForCallback<T, R>,
-  options: WaitForOptions<T> = {},
+export async function poll<T, R>(
+  callback: PollCallback<T, R>,
+  options: PollOptions<T> = {},
 ): Promise<R> {
   throwIfAborted(options.signal);
-  const { delay, onAttempt, userData } = options;
+  const { delay, afterPoll, userData } = options;
 
   let attempt = 0;
-  const context: WaitForContext<T> = { attempt: 0, delay, userData };
+  const context: PollContext<T> = { attempt: 0, delay, userData };
   Object.defineProperty(context, "attempt", {
     configurable: false,
     enumerable: true,
@@ -134,7 +141,7 @@ export async function waitFor<T, R>(
   });
 
   let signal = options.signal;
-  let response: R = undefined as unknown as R;
+  let response!: R;
   const main = async (ctx: IntervalContext) => {
     ++attempt;
     response = await callback(context);
@@ -145,13 +152,17 @@ export async function waitFor<T, R>(
     if (ctx.stop === true) {
       return;
     }
-    await onAttempt?.(context);
+    await afterPoll?.(context);
     ctx.delay = context.delay ?? 0;
     ctx.stop = context.stop;
   };
 
+  const initialDelay = hasOwnProperty(options, "initialDelay")
+    ? options.initialDelay
+    : delay;
+
   if (options.timeout == null) {
-    await setIntervalAsync(main, delay ?? 0, signal);
+    await setIntervalAsync(main, initialDelay ?? 0, signal);
     return response;
   }
 
@@ -161,7 +172,7 @@ export async function waitFor<T, R>(
   try {
     await Promise.race([
       timeout(options.timeout, signal),
-      setIntervalAsync(main, delay ?? 0, signal),
+      setIntervalAsync(main, initialDelay ?? 0, signal),
     ]);
     return response;
   } finally {
