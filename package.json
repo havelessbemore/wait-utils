@@ -67,6 +67,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "build:docs": "typedoc",
     "format": "prettier --write .",
     "lint": "eslint .",
     "test": "jest --runInBand",
@@ -90,6 +91,8 @@
     "ts-jest": "^29.3.3",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
+    "typedoc": "^0.28.7",
+    "typedoc-plugin-markdown": "^4.7.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1"
   }
