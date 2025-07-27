@@ -1,8 +1,12 @@
 import { expectNativeAbortError } from "src/errors/__testutils__/utils";
-import { HAS_THROW_IF_ABORTED, throwIfAborted } from "src/utils/throwIfAborted";
+import {
+  getThrowIfAborted,
+  HAS_THROW_IF_ABORTED,
+  throwIfAborted,
+} from "src/utils/throwIfAborted";
 
 describe("HAS_THROW_IF_ABORTED", () => {
-  it("reflects presence of AbortSignal.any", () => {
+  it("reflects presence of AbortSignal.throwIfAborted instance method", () => {
     expect(HAS_THROW_IF_ABORTED).toBe(
       typeof AbortSignal.prototype.throwIfAborted === "function",
     );
@@ -10,162 +14,76 @@ describe("HAS_THROW_IF_ABORTED", () => {
 });
 
 describe(throwIfAborted.name, () => {
-  jest.mock("src/utils/throwIfAborted", () => ({
-    ...jest.requireActual("src/utils/throwIfAborted"),
-    HAS_THROW_IF_ABORTED: false,
-  }));
+  const methods = [
+    {
+      name: `Actual (native = ${HAS_THROW_IF_ABORTED})`,
+      method: throwIfAborted,
+    },
+    {
+      name: "polyfill",
+      method: getThrowIfAborted(false),
+    },
+  ];
 
-  afterEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
-  });
-
-  describe("with native (HAS_THROW_IF_ABORTED = true)", () => {
-    beforeEach(() => {
-      (HAS_THROW_IF_ABORTED as boolean) = true;
-    });
-
-    it("does nothing if signal is undefined", () => {
-      expect(() => throwIfAborted(undefined)).not.toThrow();
-    });
-
-    it("does nothing if signal is not aborted", () => {
-      const signal = {
-        throwIfAborted: jest.fn(),
-      } as unknown as AbortSignal;
-      expect(() => throwIfAborted(signal)).not.toThrow();
-      expect(signal.throwIfAborted).toHaveBeenCalled();
-    });
-
-    it("throws with native AbortError if no reason given", () => {
-      const controller = new AbortController();
-      controller.abort();
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      try {
-        throwIfAborted(controller.signal);
-        fail("Expected throw");
-      } catch (error) {
-        expectNativeAbortError(error);
+  for (const { name, method } of methods) {
+    describe(name, () => {
+      if (name == "polyfill") {
+        it("does not call signal.throwIfAborted", () => {
+          const signal = {
+            throwIfAborted: jest.fn(),
+          } as unknown as AbortSignal;
+          expect(() => method(signal)).not.toThrow();
+          expect(signal.throwIfAborted).not.toHaveBeenCalled();
+        });
       }
-      expect(throwIfAbortedSpy).toHaveBeenCalled();
-    });
 
-    it("throws with native AbortError if reason is undefined", () => {
-      const controller = new AbortController();
-      controller.abort(undefined);
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      try {
-        throwIfAborted(controller.signal);
-        fail("Expected throw");
-      } catch (error) {
-        expectNativeAbortError(error);
-      }
-      expect(throwIfAbortedSpy).toHaveBeenCalled();
-    });
+      it("does nothing if signal is undefined", () => {
+        expect(() => method(undefined)).not.toThrow();
+      });
 
-    it("throws null if reason is null", () => {
-      const controller = new AbortController();
-      controller.abort(null);
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      try {
-        throwIfAborted(controller.signal);
-        fail("Expected throw");
-      } catch (error) {
-        expect(error).toBe(null);
-      }
-      expect(throwIfAbortedSpy).toHaveBeenCalled();
-    });
+      it("does nothing if signal is not aborted", () => {
+        const controller = new AbortController();
+        expect(() => method(controller.signal)).not.toThrow();
+      });
 
-    it("throws with provided reason", () => {
-      const error = new Error("Abort thrown");
-      const controller = new AbortController();
-      controller.abort(error);
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      expect(() => throwIfAborted(controller.signal)).toThrow(error);
-      expect(throwIfAbortedSpy).toHaveBeenCalled();
-    });
-  });
+      it("throws native AbortError if aborted with no reason", () => {
+        const controller = new AbortController();
+        controller.abort();
+        try {
+          throwIfAborted(controller.signal);
+          fail("Expected throw");
+        } catch (error) {
+          expectNativeAbortError(error);
+        }
+      });
 
-  describe("with custom (HAS_THROW_IF_ABORTED = false)", () => {
-    beforeEach(() => {
-      (HAS_THROW_IF_ABORTED as boolean) = false;
-    });
+      it("throws native AbortError if aborted with undefined reason", () => {
+        const controller = new AbortController();
+        controller.abort(undefined);
+        try {
+          throwIfAborted(controller.signal);
+          fail("Expected throw");
+        } catch (error) {
+          expectNativeAbortError(error);
+        }
+      });
 
-    it("does nothing if signal is undefined", () => {
-      expect(() => throwIfAborted(undefined)).not.toThrow();
-    });
+      it("throws null if aborted with null reason", () => {
+        const controller = new AbortController();
+        controller.abort(null);
+        try {
+          throwIfAborted(controller.signal);
+          fail("Expected throw");
+        } catch (error) {
+          expect(error).toBe(null);
+        }
+      });
 
-    it("does nothing if signal is not aborted", () => {
-      const signal = {
-        throwIfAborted: jest.fn(),
-      } as unknown as AbortSignal;
-      expect(() => throwIfAborted(signal)).not.toThrow();
-      expect(signal.throwIfAborted).not.toHaveBeenCalled();
+      it("throws if aborted with given reason", () => {
+        const controller = new AbortController();
+        controller.abort("CustomReason");
+        expect(() => method(controller.signal)).toThrow("CustomReason");
+      });
     });
-
-    it("throws with AbortError if no reason given", () => {
-      const controller = new AbortController();
-      controller.abort();
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      try {
-        throwIfAborted(controller.signal);
-        fail("Expected throw");
-      } catch (error) {
-        expectNativeAbortError(error);
-      }
-      expect(throwIfAbortedSpy).not.toHaveBeenCalled();
-    });
-
-    it("throws with native AbortError if reason is undefined", () => {
-      const controller = new AbortController();
-      controller.abort(undefined);
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      try {
-        throwIfAborted(controller.signal);
-        fail("Expected throw");
-      } catch (error) {
-        expectNativeAbortError(error);
-      }
-      expect(throwIfAbortedSpy).not.toHaveBeenCalled();
-    });
-
-    it("throws null if reason is null", () => {
-      const controller = new AbortController();
-      controller.abort(null);
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      try {
-        throwIfAborted(controller.signal);
-        fail("Expected throw");
-      } catch (error) {
-        expect(error).toBe(null);
-      }
-      expect(throwIfAbortedSpy).not.toHaveBeenCalled();
-    });
-
-    it("throws with provided reason", () => {
-      const error = new Error("Abort thrown");
-      const controller = new AbortController();
-      controller.abort(error);
-      const throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
-      expect(() => throwIfAborted(controller.signal)).toThrow(error);
-      expect(throwIfAbortedSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not call signal.throwIfAborted()", () => {
-      const signal = {
-        throwIfAborted: jest.fn(),
-      } as unknown as AbortSignal;
-      expect(() => throwIfAborted(signal)).not.toThrow();
-      expect(signal.throwIfAborted).not.toHaveBeenCalled();
-    });
-
-    it("throws signal.reason if signal.aborted", () => {
-      const reason = new Error("Manual abort");
-      const signal = {
-        aborted: true,
-        reason,
-      } as unknown as AbortSignal;
-      expect(() => throwIfAborted(signal)).toThrow(reason);
-    });
-  });
+  }
 });
