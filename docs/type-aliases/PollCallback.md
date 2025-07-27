@@ -8,7 +8,7 @@
 
 > **PollCallback**\<`T`, `R`\> = (`context`) => `R` \| `Promise`\<`R`\>
 
-Defined in: [src/poll.ts:30](https://github.com/havelessbemore/wait-utils/blob/f8bff5b47c64f45aba9b31f67688196f18b2c467/src/poll.ts#L30)
+Defined in: [src/poll.ts:30](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/poll.ts#L30)
 
 The main function invoked at each iteration in [poll](../functions/poll.md).
 

@@ -6,7 +6,7 @@
 
 # Class: TimeoutError
 
-Defined in: [src/errors/timeoutError.ts:8](https://github.com/havelessbemore/wait-utils/blob/f8bff5b47c64f45aba9b31f67688196f18b2c467/src/errors/timeoutError.ts#L8)
+Defined in: [src/errors/timeoutError.ts:8](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/errors/timeoutError.ts#L8)
 
 Error thrown when an operation exceeds its allowed time limit.
 
@@ -24,7 +24,7 @@ terminated based on a timeout setting.
 
 > **new TimeoutError**(`message`): `TimeoutError`
 
-Defined in: [src/errors/timeoutError.ts:9](https://github.com/havelessbemore/wait-utils/blob/f8bff5b47c64f45aba9b31f67688196f18b2c467/src/errors/timeoutError.ts#L9)
+Defined in: [src/errors/timeoutError.ts:9](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/errors/timeoutError.ts#L9)
 
 #### Parameters
 
