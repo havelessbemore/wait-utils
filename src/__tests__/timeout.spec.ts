@@ -8,7 +8,7 @@ describe(timeout.name, () => {
   let waitSpy: jest.SpiedFunction<typeof waitModule.wait>;
 
   beforeAll(() => {
-    jest.useFakeTimers();
+    jest.useFakeTimers({ now: 1_000_000 });
   });
 
   beforeEach(() => {
@@ -16,18 +16,16 @@ describe(timeout.name, () => {
   });
 
   afterEach(() => {
-    waitSpy.mockRestore();
     jest.clearAllMocks();
     jest.clearAllTimers();
   });
 
   afterAll(() => {
+    jest.restoreAllMocks();
     jest.useRealTimers();
   });
 
-  // Delay
-
-  describe("with delay only", () => {
+  describe("delay", () => {
     it("works if delay is undefined", async () => {
       waitSpy.mockImplementationOnce(() => Promise.resolve());
       const error = await timeout(undefined).catch((error) => error);
@@ -66,14 +64,12 @@ describe(timeout.name, () => {
     it("works after delay", async () => {
       waitSpy.mockImplementationOnce(() => Promise.resolve());
       const error = await timeout(500).catch((error) => error);
-      expectTimeoutError(error);
       expect(waitSpy).toHaveBeenCalledWith(500, undefined);
+      expectTimeoutError(error);
     });
   });
 
-  // Signal
-
-  describe("with abort signal", () => {
+  describe("signal", () => {
     it("resolves if signal is already aborted", async () => {
       const controller = new AbortController();
       const reason = new Error("aborted");
@@ -118,8 +114,8 @@ describe(timeout.name, () => {
 
       waitSpy.mockImplementationOnce(() => Promise.resolve());
       const promise = timeout(1000, signal);
-      jest.advanceTimersByTime(1000);
       controller.abort(new Error("aborted"));
+
       await expect(promise).rejects.toBeInstanceOf(TimeoutError);
       expect(waitSpy).toHaveBeenCalledWith(1000, signal);
     });
