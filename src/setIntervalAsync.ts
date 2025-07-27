@@ -29,7 +29,7 @@ export interface IntervalContext {
  *
  * @param callback - Invoked on each tick. Receives a mutable {@link IntervalContext} object,
  *                   allowing the callback to change delay dynamically or stop the interval.
- * @param delay - The initial delay in milliseconds between invocations.
+ * @param delay - The delay in milliseconds between invocations.
  *                Can be changed dynamically via `context.delay`.
  * @param signal - An `AbortSignal` which can cancel the interval.
  *
