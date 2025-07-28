@@ -1,5 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+### Custom
+
+.DS_Store
+/junit.xml
+
 ### Template: https://github.com/github/gitignore/blob/main/Node.gitignore ###
 
 # Logs

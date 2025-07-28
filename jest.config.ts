@@ -14,6 +14,16 @@ const config: Config = {
     "^src/(.*)$": "<rootDir>/src/$1",
   },
   passWithNoTests: true,
+  reporters: [
+    "default",
+    [
+      "jest-junit",
+      {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        classNameTemplate: (vars: any) => vars.filepath,
+      },
+    ],
+  ],
   testEnvironment: "node",
 };
 
