@@ -6,7 +6,7 @@
 
 # Interface: IntervalContext
 
-Defined in: [src/setIntervalAsync.ts:4](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/setIntervalAsync.ts#L4)
+Defined in: [setIntervalAsync.ts:4](https://github.com/havelessbemore/wait-utils/blob/d20b9a5a1c34bc0ec216ef08a4a2bb6f79d88c11/src/setIntervalAsync.ts#L4)
 
 Context object provided to the [setIntervalAsync](../functions/setIntervalAsync.md) callback.
 
@@ -16,7 +16,7 @@ Context object provided to the [setIntervalAsync](../functions/setIntervalAsync.
 
 > `optional` **delay**: `number`
 
-Defined in: [src/setIntervalAsync.ts:10](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/setIntervalAsync.ts#L10)
+Defined in: [setIntervalAsync.ts:10](https://github.com/havelessbemore/wait-utils/blob/d20b9a5a1c34bc0ec216ef08a4a2bb6f79d88c11/src/setIntervalAsync.ts#L10)
 
 The delay in milliseconds before the next tick.
 Defaults to the initial delay provided to [setIntervalAsync](../functions/setIntervalAsync.md).
@@ -28,7 +28,7 @@ The callback can modify this property to change intervals dynamically.
 
 > `optional` **stop**: `boolean`
 
-Defined in: [src/setIntervalAsync.ts:15](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/setIntervalAsync.ts#L15)
+Defined in: [setIntervalAsync.ts:15](https://github.com/havelessbemore/wait-utils/blob/d20b9a5a1c34bc0ec216ef08a4a2bb6f79d88c11/src/setIntervalAsync.ts#L15)
 
 When set to `true`, the inverval is stopped.
 
@@ -38,7 +38,7 @@ When set to `true`, the inverval is stopped.
 
 > `readonly` **tickCount**: `number`
 
-Defined in: [src/setIntervalAsync.ts:22](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/setIntervalAsync.ts#L22)
+Defined in: [setIntervalAsync.ts:22](https://github.com/havelessbemore/wait-utils/blob/d20b9a5a1c34bc0ec216ef08a4a2bb6f79d88c11/src/setIntervalAsync.ts#L22)
 
 The tick counter, starting at `1` and incremented automatically.
 

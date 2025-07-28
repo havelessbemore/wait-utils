@@ -8,7 +8,7 @@
 
 > **setIntervalAsync**(`callback`, `delay?`, `signal?`): `Promise`\<`void`\>
 
-Defined in: [src/setIntervalAsync.ts:52](https://github.com/havelessbemore/wait-utils/blob/15dbd61dba9c072aaada4b9cdc5ac16d88e7000e/src/setIntervalAsync.ts#L52)
+Defined in: [setIntervalAsync.ts:52](https://github.com/havelessbemore/wait-utils/blob/d20b9a5a1c34bc0ec216ef08a4a2bb6f79d88c11/src/setIntervalAsync.ts#L52)
 
 Asynchronously calls a callback repeatedly at a given interval.
 
