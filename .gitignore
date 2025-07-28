@@ -2,7 +2,10 @@
 
 ### Custom
 
+# Mac OS
 .DS_Store
+
+# JUnit test report
 /junit.xml
 
 ### Template: https://github.com/github/gitignore/blob/main/Node.gitignore ###
