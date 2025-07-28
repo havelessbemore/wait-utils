@@ -94,19 +94,18 @@ export function setIntervalAsync(
     };
 
     const onTimeout = async () => {
-      if (!isRunning) {
-        return;
-      }
-      try {
-        ++tickCount;
-        await callback(context);
-        if (context.stop === true) {
-          onResolve();
-        } else if (isRunning) {
-          timeoutId = setTimeout(onTimeout, context.delay);
+      if (isRunning) {
+        try {
+          ++tickCount;
+          await callback(context);
+          if (context.stop === true) {
+            onResolve();
+          } else if (isRunning) {
+            timeoutId = setTimeout(onTimeout, context.delay);
+          }
+        } catch (error) {
+          onError(error);
         }
-      } catch (error) {
-        onError(error);
       }
     };
 
