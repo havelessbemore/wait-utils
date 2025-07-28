@@ -4,10 +4,6 @@
 
 # wait-utils
 
-## Interfaces
+## Variables
 
-- [IntervalContext](interfaces/IntervalContext.md)
-
-## Functions
-
-- [setIntervalAsync](functions/setIntervalAsync.md)
+- [default](variables/default.md)

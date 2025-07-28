@@ -12,13 +12,5 @@ export default {
     "eslint",
     // Run tests
     "cross-env NODE_ENV=test jest --bail --findRelatedTests --runInBand",
-    // Generate docs
-    "typedoc",
-  ],
-  "README.md": [
-    // Format code
-    "prettier --write",
-    // Generate docs
-    "typedoc --entryPoints src/index.ts",
   ],
 };
