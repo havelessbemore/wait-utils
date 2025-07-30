@@ -8,7 +8,7 @@
 
 > **poll**\<`T`, `R`\>(`callback`, `options`): `Promise`\<`R`\>
 
-Defined in: [src/poll.ts:128](https://github.com/havelessbemore/wait-utils/blob/94ef6d42235298b430e9e2477787e6cf7d01d527/src/poll.ts#L128)
+Defined in: [src/poll.ts:128](https://github.com/havelessbemore/wait-utils/blob/6097a4da25e21f745253cc3003ada520ffa15a55/src/poll.ts#L128)
 
 Repeatedly invokes a callback function until it succeeds, is stopped, aborted, or times out.
 

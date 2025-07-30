@@ -2,17 +2,20 @@ import { setTimeoutAsync } from "./setTimeoutAsync";
 import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
- * Waits until the specified high-resolution timestamp is reached.
+ * Waits until the specified time is reached.
  *
- * @param timestamp - Target time (in milliseconds) relative to `performance.now()`.
+ * @param timestamp - Target time:
+ *   - If a {@link Date}, relative to {@link Date.now}.
+ *   - If a `number`, relative to {@link performance.now}.
+ *
  * @param signal - Optional `AbortSignal` to cancel the wait early.
  *
  * @returns A promise that:
- * - resolves when the current time is at or past the target timestamp
+ * - resolves when the current time is at or past the target time
  * - rejects with the signal’s reason if cancelled before the target
  */
 export async function waitUntil(
-  timestamp?: number | null,
+  timestamp?: Date | number | null,
   signal?: AbortSignal,
 ): Promise<void> {
   throwIfAborted(signal);
@@ -21,8 +24,12 @@ export async function waitUntil(
     return;
   }
 
-  const delay = Number(timestamp) - performance.now();
+  const delay =
+    timestamp instanceof Date
+      ? timestamp.getTime() - Date.now()
+      : Number(timestamp) - performance.now();
+
   if (!Number.isNaN(delay) && delay > 0) {
-    return setTimeoutAsync(delay, signal);
+    await setTimeoutAsync(delay, signal);
   }
 }

@@ -6,7 +6,7 @@
 
 # Class: AbortError
 
-Defined in: [src/errors/abortError.ts:8](https://github.com/havelessbemore/wait-utils/blob/94ef6d42235298b430e9e2477787e6cf7d01d527/src/errors/abortError.ts#L8)
+Defined in: [src/errors/abortError.ts:8](https://github.com/havelessbemore/wait-utils/blob/6097a4da25e21f745253cc3003ada520ffa15a55/src/errors/abortError.ts#L8)
 
 Error thrown when an operation is aborted via an `AbortSignal`.
 
@@ -24,7 +24,7 @@ the request by invoking `AbortController.abort()`.
 
 > **new AbortError**(`message`): `AbortError`
 
-Defined in: [src/errors/abortError.ts:9](https://github.com/havelessbemore/wait-utils/blob/94ef6d42235298b430e9e2477787e6cf7d01d527/src/errors/abortError.ts#L9)
+Defined in: [src/errors/abortError.ts:9](https://github.com/havelessbemore/wait-utils/blob/6097a4da25e21f745253cc3003ada520ffa15a55/src/errors/abortError.ts#L9)
 
 #### Parameters
 
