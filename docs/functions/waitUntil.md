@@ -8,17 +8,19 @@
 
 > **waitUntil**(`timestamp?`, `signal?`): `Promise`\<`void`\>
 
-Defined in: [src/waitUntil.ts:14](https://github.com/havelessbemore/wait-utils/blob/94ef6d42235298b430e9e2477787e6cf7d01d527/src/waitUntil.ts#L14)
+Defined in: [src/waitUntil.ts:17](https://github.com/havelessbemore/wait-utils/blob/6097a4da25e21f745253cc3003ada520ffa15a55/src/waitUntil.ts#L17)
 
-Waits until the specified high-resolution timestamp is reached.
+Waits until the specified time is reached.
 
 ## Parameters
 
 ### timestamp?
 
-Target time (in milliseconds) relative to `performance.now()`.
+Target time:
+  - If a [Date](#), relative to [Date.now](#).
+  - If a `number`, relative to [performance.now](#).
 
-`null` | `number`
+`null` | `number` | [`Date`](#)
 
 ### signal?
 
@@ -31,5 +33,5 @@ Optional `AbortSignal` to cancel the wait early.
 `Promise`\<`void`\>
 
 A promise that:
-- resolves when the current time is at or past the target timestamp
+- resolves when the current time is at or past the target time
 - rejects with the signal’s reason if cancelled before the target

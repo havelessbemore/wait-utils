@@ -12,11 +12,13 @@ describe(waitUntil.name, () => {
   const mockThrowIfAborted = throwIfAborted as jest.MockedFunction<
     typeof throwIfAborted
   >;
-  let nowSpy: jest.SpiedFunction<typeof performance.now>;
+  let dateNowSpy: jest.SpiedFunction<typeof Date.now>;
+  let perfNowSpy: jest.SpiedFunction<typeof performance.now>;
 
   beforeAll(() => {
     jest.useFakeTimers({ now: 1_000_000 });
-    nowSpy = jest
+    dateNowSpy = jest.spyOn(Date, "now").mockImplementation(() => jest.now());
+    perfNowSpy = jest
       .spyOn(performance, "now")
       .mockImplementation(() => jest.now());
   });
@@ -56,21 +58,42 @@ describe(waitUntil.name, () => {
     await expect(waitUntil(jest.now() - 1)).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
     expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
-    expect(nowSpy).toHaveBeenCalledTimes(1);
+    expect(perfNowSpy).toHaveBeenCalledTimes(1);
   });
 
   it("resolves immediately if timestamp is == performance.now()", async () => {
     await expect(waitUntil(jest.now())).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
     expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
-    expect(nowSpy).toHaveBeenCalledTimes(1);
+    expect(perfNowSpy).toHaveBeenCalledTimes(1);
   });
 
   it("calls setTimeoutAsync if timestamp > performance.now()", async () => {
     mockSetTimeoutAsync.mockResolvedValueOnce(undefined);
     await expect(waitUntil(jest.now() + 1)).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).toHaveBeenCalledWith(1, undefined);
-    expect(nowSpy).toHaveBeenCalledTimes(1);
+    expect(perfNowSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("resolves immediately if timestamp date is < Date.now()", async () => {
+    await expect(waitUntil(new Date(jest.now() - 1))).resolves.toBeUndefined();
+    expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
+    expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
+    expect(dateNowSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("resolves immediately if timestamp is == Date.now()", async () => {
+    await expect(waitUntil(new Date(jest.now()))).resolves.toBeUndefined();
+    expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
+    expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
+    expect(dateNowSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls setTimeoutAsync if timestamp > Date.now()", async () => {
+    mockSetTimeoutAsync.mockResolvedValueOnce(undefined);
+    await expect(waitUntil(new Date(jest.now() + 1))).resolves.toBeUndefined();
+    expect(mockSetTimeoutAsync).toHaveBeenCalledWith(1, undefined);
+    expect(dateNowSpy).toHaveBeenCalledTimes(1);
   });
 
   // Signal
