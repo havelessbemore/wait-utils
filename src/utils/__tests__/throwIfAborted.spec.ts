@@ -1,7 +1,7 @@
 import { expectNativeAbortError } from "src/errors/__testutils__/utils";
 import {
-  getThrowIfAborted,
   HAS_THROW_IF_ABORTED,
+  polyfillFn,
   throwIfAborted,
 } from "src/utils/throwIfAborted";
 
@@ -13,7 +13,7 @@ describe("HAS_THROW_IF_ABORTED", () => {
   });
 });
 
-describe(throwIfAborted.name, () => {
+describe("throwIfAborted", () => {
   const methods = [
     {
       name: `Actual (native = ${HAS_THROW_IF_ABORTED})`,
@@ -21,7 +21,7 @@ describe(throwIfAborted.name, () => {
     },
     {
       name: "polyfill",
-      method: getThrowIfAborted(false),
+      method: polyfillFn,
     },
   ];
 

@@ -1,17 +1,14 @@
 // Node 17.3 (Release date: 2021-12-17)
 export const HAS_THROW_IF_ABORTED = "throwIfAborted" in AbortSignal.prototype;
 
-export function getThrowIfAborted(hasNative: boolean) {
-  if (hasNative) {
-    return function throwIfAborted(signal?: AbortSignal): void {
-      signal?.throwIfAborted();
-    };
-  }
-  return function throwIfAborted(signal?: AbortSignal): void {
-    if (signal?.aborted) {
-      throw signal.reason;
-    }
-  };
+export const throwIfAborted = HAS_THROW_IF_ABORTED ? nativeFn : polyfillFn;
+
+export function nativeFn(signal?: AbortSignal): void {
+  signal?.throwIfAborted();
 }
 
-export const throwIfAborted = getThrowIfAborted(HAS_THROW_IF_ABORTED);
+export function polyfillFn(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw signal.reason;
+  }
+}

@@ -1,29 +1,55 @@
 // Node 20.3 (Release date: 2023-06-08)
 export const HAS_ANY = "any" in AbortSignal;
 
-export function or(signal1: AbortSignal, signal2?: AbortSignal): AbortSignal;
-export function or(
+export const or = HAS_ANY ? nativeFn : polyfillFn;
+
+export function nativeFn(
+  signal1: AbortSignal,
+  signal2?: AbortSignal,
+): AbortSignal;
+export function nativeFn(
   signal1: AbortSignal | undefined,
   signal2: AbortSignal,
 ): AbortSignal;
-export function or(
+export function nativeFn(
   signal1?: AbortSignal,
   signal2?: AbortSignal,
 ): AbortSignal | undefined;
-export function or(
+export function nativeFn(
   signal1?: AbortSignal,
   signal2?: AbortSignal,
 ): AbortSignal | undefined {
+  if (signal2 == null) {
+    return signal1;
+  }
   if (signal1 == null) {
     return signal2;
   }
+  return AbortSignal.any([signal1, signal2]);
+}
 
+export function polyfillFn(
+  signal1: AbortSignal,
+  signal2?: AbortSignal,
+): AbortSignal;
+export function polyfillFn(
+  signal1: AbortSignal | undefined,
+  signal2: AbortSignal,
+): AbortSignal;
+export function polyfillFn(
+  signal1?: AbortSignal,
+  signal2?: AbortSignal,
+): AbortSignal | undefined;
+export function polyfillFn(
+  signal1?: AbortSignal,
+  signal2?: AbortSignal,
+): AbortSignal | undefined {
   if (signal2 == null) {
     return signal1;
   }
 
-  if (HAS_ANY) {
-    return AbortSignal.any([signal1, signal2]);
+  if (signal1 == null) {
+    return signal2;
   }
 
   const controller = new AbortController();
