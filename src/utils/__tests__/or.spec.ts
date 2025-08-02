@@ -152,13 +152,21 @@ describe("or", () => {
 
   describe("polyfill", () => {
     const method = polyfillFn;
+    const originalAny = AbortSignal.any;
+
+    beforeAll(() => {
+      AbortSignal.any = jest.fn();
+    });
+
+    afterAll(() => {
+      AbortSignal.any = originalAny;
+    });
 
     it("does not call AbortSignal.any", () => {
-      const spy1 = jest.spyOn(AbortSignal, "any");
       const c1 = new AbortController();
       const c2 = new AbortController();
       const result = method(c1.signal, c2.signal);
-      expect(spy1).not.toHaveBeenCalled();
+      expect(AbortSignal.any).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(AbortSignal);
     });
 

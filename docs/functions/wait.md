@@ -8,7 +8,7 @@
 
 > **wait**(`delay?`, `signal?`): `Promise`\<`void`\>
 
-Defined in: [src/wait.ts:16](https://github.com/havelessbemore/wait-utils/blob/6097a4da25e21f745253cc3003ada520ffa15a55/src/wait.ts#L16)
+Defined in: [src/wait.ts:16](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/wait.ts#L16)
 
 Waits for the specified number of milliseconds.
 

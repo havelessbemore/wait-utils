@@ -8,7 +8,7 @@
 
 > **setTimeoutAsync**(`delay?`, `signal?`): `Promise`\<`void`\>
 
-Defined in: [src/setTimeoutAsync.ts:22](https://github.com/havelessbemore/wait-utils/blob/6097a4da25e21f745253cc3003ada520ffa15a55/src/setTimeoutAsync.ts#L22)
+Defined in: [src/setTimeoutAsync.ts:22](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/setTimeoutAsync.ts#L22)
 
 Asynchronously delays execution for the specified duration.
 

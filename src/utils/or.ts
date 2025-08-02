@@ -1,6 +1,17 @@
 // Node 20.3 (Release date: 2023-06-08)
 export const HAS_ANY = "any" in AbortSignal;
 
+/**
+ * Takes up to two abort signals and returns an {@link AbortSignal}.
+ *
+ * @param signal1
+ * @param signal2
+ *
+ * @returns
+ * - If two signals given, then an {@link AbortSignal} that combines them.
+ * - If one signal given, then the given signal.
+ * - If no signals given, then `undefined`.
+ */
 export const or = HAS_ANY ? nativeFn : polyfillFn;
 
 export function nativeFn(
