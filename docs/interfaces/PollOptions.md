@@ -6,7 +6,7 @@
 
 # Interface: PollOptions\<T\>
 
-Defined in: [src/poll.ts:67](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L67)
+Defined in: [src/poll.ts:66](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L66)
 
 Configuration options for [poll](../functions/poll.md).
 
@@ -22,7 +22,7 @@ Configuration options for [poll](../functions/poll.md).
 
 > `optional` **afterPoll**: [`AfterPollCallback`](../type-aliases/AfterPollCallback.md)\<`T`\>
 
-Defined in: [src/poll.ts:73](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L73)
+Defined in: [src/poll.ts:72](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L72)
 
 A function to run after each poll attempt.
 
@@ -34,7 +34,7 @@ Can be used to log results, inspect attempt state, or modify future behavior.
 
 > `optional` **delay**: `null` \| `number`
 
-Defined in: [src/poll.ts:80](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L80)
+Defined in: [src/poll.ts:79](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L79)
 
 The delay (in milliseconds) between subsequent attempts.
 
@@ -46,7 +46,7 @@ Can be changed dynamically via [context.delay](PollContext.md#delay).
 
 > `optional` **initialDelay**: `null` \| `number`
 
-Defined in: [src/poll.ts:86](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L86)
+Defined in: [src/poll.ts:85](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L85)
 
 The delay (in milliseconds) before the first attempt.
 If not specified, falls back to [delay](#delay).
@@ -57,7 +57,7 @@ If not specified, falls back to [delay](#delay).
 
 > `optional` **signal**: [`AbortSignal`](#)
 
-Defined in: [src/poll.ts:93](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L93)
+Defined in: [src/poll.ts:92](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L92)
 
 An [AbortSignal](#) to cancel the wait loop.
 
@@ -69,7 +69,7 @@ If triggered, the function throws an `AbortError`.
 
 > `optional` **timeout**: `number`
 
-Defined in: [src/poll.ts:100](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L100)
+Defined in: [src/poll.ts:99](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L99)
 
 The maximum total duration (in milliseconds) to wait before timing out.
 
@@ -81,7 +81,7 @@ If exceeded, the function throws a `TimeoutError`.
 
 > `optional` **userData**: `T`
 
-Defined in: [src/poll.ts:107](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L107)
+Defined in: [src/poll.ts:106](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L106)
 
 User-provided data.
 

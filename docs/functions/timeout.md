@@ -8,7 +8,7 @@
 
 > **timeout**(`delay?`, `signal?`): `Promise`\<`void`\>
 
-Defined in: [src/timeout.ts:16](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/timeout.ts#L16)
+Defined in: [src/timeout.ts:16](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/timeout.ts#L16)
 
 Rejects with a `TimeoutError` after the specified delay,
 unless cancelled by an `AbortSignal`.

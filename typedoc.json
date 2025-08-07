@@ -1,14 +1,14 @@
 {
-    "$schema": "https://typedoc.org/schema.json",
-    "entryPoints": ["src/index.ts"],
-    "externalSymbolLinkMappings": {
-        "typescript": { 
-            "AbortSignal": "#",
-            "Date": "#",
-            "DateConstructor.now": "#",
-            "Performance.now": "#"
-        }
-    },
-    "out": "./docs",
-    "plugin": ["typedoc-plugin-markdown"]
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "externalSymbolLinkMappings": {
+    "typescript": {
+      "AbortSignal": "#",
+      "Date": "#",
+      "DateConstructor.now": "#",
+      "Performance.now": "#"
+    }
+  },
+  "out": "./docs",
+  "plugin": ["typedoc-plugin-markdown"]
 }

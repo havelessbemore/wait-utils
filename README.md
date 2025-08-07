@@ -40,6 +40,12 @@ NPM:
 npm install wait-utils
 ```
 
+PNPM:
+
+```bash
+pnpm install wait-utils
+```
+
 Yarn:
 
 ```bash

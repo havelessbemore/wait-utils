@@ -6,7 +6,7 @@
 
 # Interface: IntervalContext
 
-Defined in: [src/setIntervalAsync.ts:4](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/setIntervalAsync.ts#L4)
+Defined in: [src/setIntervalAsync.ts:4](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/setIntervalAsync.ts#L4)
 
 Context object provided to the [setIntervalAsync](../functions/setIntervalAsync.md) callback.
 
@@ -16,7 +16,7 @@ Context object provided to the [setIntervalAsync](../functions/setIntervalAsync.
 
 > `optional` **delay**: `number`
 
-Defined in: [src/setIntervalAsync.ts:10](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/setIntervalAsync.ts#L10)
+Defined in: [src/setIntervalAsync.ts:10](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/setIntervalAsync.ts#L10)
 
 The delay in milliseconds before the next tick.
 Defaults to the initial delay provided to [setIntervalAsync](../functions/setIntervalAsync.md).
@@ -28,7 +28,7 @@ The callback can modify this property to change intervals dynamically.
 
 > `optional` **stop**: `boolean`
 
-Defined in: [src/setIntervalAsync.ts:15](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/setIntervalAsync.ts#L15)
+Defined in: [src/setIntervalAsync.ts:15](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/setIntervalAsync.ts#L15)
 
 When set to `true`, the inverval is stopped.
 
@@ -38,7 +38,7 @@ When set to `true`, the inverval is stopped.
 
 > `readonly` **tickCount**: `number`
 
-Defined in: [src/setIntervalAsync.ts:22](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/setIntervalAsync.ts#L22)
+Defined in: [src/setIntervalAsync.ts:22](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/setIntervalAsync.ts#L22)
 
 The tick counter, starting at `1` and incremented automatically.
 

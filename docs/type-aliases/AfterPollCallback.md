@@ -8,7 +8,7 @@
 
 > **AfterPollCallback**\<`T`\> = (`context`) => `unknown` \| `Promise`\<`unknown`\>
 
-Defined in: [src/poll.ts:16](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/poll.ts#L16)
+Defined in: [src/poll.ts:15](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/poll.ts#L15)
 
 A hook invoked after each successful callback execution in [poll](../functions/poll.md).
 

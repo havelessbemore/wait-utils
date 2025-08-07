@@ -1,5 +1,4 @@
 import { setTimeoutAsync } from "./setTimeoutAsync";
-import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
  * Waits until the specified time is reached.
@@ -18,7 +17,7 @@ export async function waitUntil(
   timestamp?: Date | number | null,
   signal?: AbortSignal,
 ): Promise<void> {
-  throwIfAborted(signal);
+  signal?.throwIfAborted();
 
   if (timestamp == null) {
     return;

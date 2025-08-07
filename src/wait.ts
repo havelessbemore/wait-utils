@@ -1,5 +1,4 @@
 import { setTimeoutAsync } from "./setTimeoutAsync";
-import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
  * Waits for the specified number of milliseconds.
@@ -17,7 +16,7 @@ export async function wait(
   delay?: number | null,
   signal?: AbortSignal,
 ): Promise<void> {
-  throwIfAborted(signal);
+  signal?.throwIfAborted();
 
   if (delay == null) {
     return;

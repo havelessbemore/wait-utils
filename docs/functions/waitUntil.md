@@ -8,7 +8,7 @@
 
 > **waitUntil**(`timestamp?`, `signal?`): `Promise`\<`void`\>
 
-Defined in: [src/waitUntil.ts:17](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/waitUntil.ts#L17)
+Defined in: [src/waitUntil.ts:16](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/waitUntil.ts#L16)
 
 Waits until the specified time is reached.
 

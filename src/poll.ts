@@ -1,8 +1,7 @@
 import { IntervalContext, setIntervalAsync } from "./setIntervalAsync";
 import { timeout } from "./timeout";
-import { hasOwnProperty } from "./utils/hasOwnProperty";
+import { getOwnProperty } from "./utils/getOwnProperty";
 import { or } from "./utils/or";
-import { throwIfAborted } from "./utils/throwIfAborted";
 
 /**
  * A hook invoked after each successful callback execution in {@link poll}.
@@ -129,7 +128,7 @@ export async function poll<T, R>(
   callback: PollCallback<T, R>,
   options: PollOptions<T> = {},
 ): Promise<R> {
-  throwIfAborted(options.signal);
+  options.signal?.throwIfAborted();
   const { delay, afterPoll, userData } = options;
 
   let attempt = 0;
@@ -157,12 +156,10 @@ export async function poll<T, R>(
     ctx.stop = context.stop;
   };
 
-  const initialDelay = hasOwnProperty(options, "initialDelay")
-    ? options.initialDelay
-    : delay;
+  const initialDelay = getOwnProperty(options, "initialDelay", delay) ?? 0;
 
   if (options.timeout == null) {
-    await setIntervalAsync(main, initialDelay ?? 0, signal);
+    await setIntervalAsync(main, initialDelay, signal);
     return response;
   }
 
@@ -172,7 +169,7 @@ export async function poll<T, R>(
   try {
     await Promise.race([
       timeout(options.timeout, signal),
-      setIntervalAsync(main, initialDelay ?? 0, signal),
+      setIntervalAsync(main, initialDelay, signal),
     ]);
     return response;
   } finally {

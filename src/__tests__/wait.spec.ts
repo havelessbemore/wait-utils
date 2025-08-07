@@ -1,17 +1,21 @@
 import { setTimeoutAsync } from "src/setTimeoutAsync";
-import { throwIfAborted } from "src/utils/throwIfAborted";
 import { wait } from "src/wait";
 
 jest.mock("src/setTimeoutAsync");
-jest.mock("src/utils/throwIfAborted");
 
 describe(wait.name, () => {
+  let controller: AbortController;
   const mockSetTimeoutAsync = setTimeoutAsync as jest.MockedFunction<
     typeof setTimeoutAsync
   >;
-  const mockThrowIfAborted = throwIfAborted as jest.MockedFunction<
-    typeof throwIfAborted
+  let throwIfAbortedSpy: jest.SpiedFunction<
+    typeof AbortSignal.prototype.throwIfAborted
   >;
+
+  beforeEach(() => {
+    controller = new AbortController();
+    throwIfAbortedSpy = jest.spyOn(controller.signal, "throwIfAborted");
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -26,31 +30,26 @@ describe(wait.name, () => {
   it("returns immediately when delay is undefined", async () => {
     await expect(wait(undefined)).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
-    expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
   });
 
   it("resolves immediately if delay is null", async () => {
     await expect(wait(null)).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
-    expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
   });
 
   it("resolves immediately if delay is NaN", async () => {
     await expect(wait(NaN)).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
-    expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
   });
 
   it("resolves immediately if delay is negative", async () => {
     await expect(wait(-1)).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
-    expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
   });
 
   it("resolves immediately if delay is 0", async () => {
     await expect(wait(0)).resolves.toBeUndefined();
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
-    expect(mockThrowIfAborted).toHaveBeenCalledTimes(1);
   });
 
   it("calls setTimeoutAsync for positive delay", async () => {
@@ -63,14 +62,10 @@ describe(wait.name, () => {
 
   it("rejects immediately if signal is already aborted", async () => {
     const reason = new Error("aborted");
-    const controller = new AbortController();
     controller.abort(reason);
-    mockThrowIfAborted.mockImplementationOnce(() => {
-      throw reason;
-    });
     await expect(wait(100, controller.signal)).rejects.toThrow(reason.message);
     expect(mockSetTimeoutAsync).not.toHaveBeenCalled();
-    expect(mockThrowIfAborted).toHaveBeenCalledWith(controller.signal);
+    expect(throwIfAbortedSpy).toHaveBeenCalled();
   });
 
   it("propagates signal to setTimeoutAsync", async () => {

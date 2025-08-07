@@ -480,8 +480,8 @@ describe(poll.name, () => {
       });
 
       const promise = poll(callback, {
-        initialDelay: 0,
         delay: 1000,
+        initialDelay: 0,
       });
 
       await jest.advanceTimersByTimeAsync(0);
@@ -490,12 +490,28 @@ describe(poll.name, () => {
       await promise;
     });
 
-    it("runs immediately if `initialDelay` and `delay` are undefined", async () => {
+    it("runs immediately if `initialDelay` and `delay` are not provided", async () => {
       const callback = jest.fn((ctx) => {
         ctx.stop = true;
       });
 
       const promise = poll(callback);
+
+      await jest.advanceTimersByTimeAsync(0);
+      expect(callback).toHaveBeenCalledTimes(1);
+
+      await promise;
+    });
+
+    it("runs immediately if `initialDelay` is not provided", async () => {
+      const callback = jest.fn((ctx) => {
+        ctx.stop = true;
+      });
+
+      const promise = poll(callback, {
+        delay: 1000,
+        initialDelay: undefined,
+      });
 
       await jest.advanceTimersByTimeAsync(0);
       expect(callback).toHaveBeenCalledTimes(1);
@@ -740,6 +756,18 @@ describe(poll.name, () => {
         expectNativeAbortError(error);
       }
       expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws TimeoutError if timeout is exceeded before `initialDelay`", async () => {
+      const callback = jest.fn();
+      const promise = poll(callback, { initialDelay: 250, timeout: 150 });
+      try {
+        jest.advanceTimersByTime(200);
+        await promise;
+      } catch (error) {
+        expectTimeoutError(error);
+      }
+      expect(callback).toHaveBeenCalledTimes(0);
     });
   });
 });

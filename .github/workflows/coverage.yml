@@ -13,21 +13,34 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           node-version: 24
-      - name: Clean install
-        run: npm ci
+          cache: 'pnpm'
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Run tests and collect coverage
-        run: npm run test:coverage
+        run: pnpm test:coverage
+
       - name: Upload coverage reports to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: havelessbemore/wait-utils
+
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/test-results-action@v1

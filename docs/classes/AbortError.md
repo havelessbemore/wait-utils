@@ -6,7 +6,7 @@
 
 # Class: AbortError
 
-Defined in: [src/errors/abortError.ts:8](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/errors/abortError.ts#L8)
+Defined in: [src/errors/abortError.ts:8](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/errors/abortError.ts#L8)
 
 Error thrown when an operation is aborted via an `AbortSignal`.
 
@@ -24,7 +24,7 @@ the request by invoking `AbortController.abort()`.
 
 > **new AbortError**(`message`): `AbortError`
 
-Defined in: [src/errors/abortError.ts:9](https://github.com/havelessbemore/wait-utils/blob/3bb2ed71fc20049f79eeaf6e5a808c5d1620f97b/src/errors/abortError.ts#L9)
+Defined in: [src/errors/abortError.ts:9](https://github.com/havelessbemore/wait-utils/blob/3773ac400372bfb6ee47c30305c3ddfe9e2a73b6/src/errors/abortError.ts#L9)
 
 #### Parameters
 
@@ -46,7 +46,7 @@ Defined in: [src/errors/abortError.ts:9](https://github.com/havelessbemore/wait-
 
 > `readonly` **ABORT\_ERR**: `20`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6561
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8622
 
 #### Inherited from
 
@@ -58,7 +58,9 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6561
 
 > `readonly` **code**: `number`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6537
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8590
+
+The **`code`** read-only property of the DOMException interface returns one of the legacy error code constants, or `0` if none match.
 
 #### Deprecated
 
@@ -74,7 +76,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6537
 
 > `readonly` **DATA\_CLONE\_ERR**: `25`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6566
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8627
 
 #### Inherited from
 
@@ -86,7 +88,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6566
 
 > `readonly` **DOMSTRING\_SIZE\_ERR**: `2`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6543
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8604
 
 #### Inherited from
 
@@ -98,7 +100,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6543
 
 > `readonly` **HIERARCHY\_REQUEST\_ERR**: `3`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6544
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8605
 
 #### Inherited from
 
@@ -110,7 +112,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6544
 
 > `readonly` **INDEX\_SIZE\_ERR**: `1`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6542
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8603
 
 #### Inherited from
 
@@ -122,7 +124,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6542
 
 > `readonly` **INUSE\_ATTRIBUTE\_ERR**: `10`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6551
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8612
 
 #### Inherited from
 
@@ -134,7 +136,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6551
 
 > `readonly` **INVALID\_ACCESS\_ERR**: `15`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6556
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8617
 
 #### Inherited from
 
@@ -146,7 +148,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6556
 
 > `readonly` **INVALID\_CHARACTER\_ERR**: `5`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6546
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8607
 
 #### Inherited from
 
@@ -158,7 +160,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6546
 
 > `readonly` **INVALID\_MODIFICATION\_ERR**: `13`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6554
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8615
 
 #### Inherited from
 
@@ -170,7 +172,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6554
 
 > `readonly` **INVALID\_NODE\_TYPE\_ERR**: `24`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6565
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8626
 
 #### Inherited from
 
@@ -182,7 +184,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6565
 
 > `readonly` **INVALID\_STATE\_ERR**: `11`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6552
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8613
 
 #### Inherited from
 
@@ -194,7 +196,9 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6552
 
 > `readonly` **message**: `string`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6539
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8596
+
+The **`message`** read-only property of the a message or description associated with the given error name.
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMException/message)
 
@@ -208,7 +212,9 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6539
 
 > `readonly` **name**: `string`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6541
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8602
+
+The **`name`** read-only property of the one of the strings associated with an error name.
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMException/name)
 
@@ -222,7 +228,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6541
 
 > `readonly` **NAMESPACE\_ERR**: `14`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6555
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8616
 
 #### Inherited from
 
@@ -234,7 +240,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6555
 
 > `readonly` **NETWORK\_ERR**: `19`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6560
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8621
 
 #### Inherited from
 
@@ -246,7 +252,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6560
 
 > `readonly` **NO\_DATA\_ALLOWED\_ERR**: `6`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6547
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8608
 
 #### Inherited from
 
@@ -258,7 +264,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6547
 
 > `readonly` **NO\_MODIFICATION\_ALLOWED\_ERR**: `7`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6548
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8609
 
 #### Inherited from
 
@@ -270,7 +276,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6548
 
 > `readonly` **NOT\_FOUND\_ERR**: `8`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6549
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8610
 
 #### Inherited from
 
@@ -282,7 +288,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6549
 
 > `readonly` **NOT\_SUPPORTED\_ERR**: `9`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6550
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8611
 
 #### Inherited from
 
@@ -294,7 +300,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6550
 
 > `readonly` **QUOTA\_EXCEEDED\_ERR**: `22`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6563
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8624
 
 #### Inherited from
 
@@ -306,7 +312,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6563
 
 > `readonly` **SECURITY\_ERR**: `18`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6559
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8620
 
 #### Inherited from
 
@@ -318,7 +324,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6559
 
 > `optional` **stack**: `string`
 
-Defined in: node\_modules/typescript/lib/lib.es5.d.ts:1078
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.es5.d.ts:1078
 
 #### Inherited from
 
@@ -330,7 +336,7 @@ Defined in: node\_modules/typescript/lib/lib.es5.d.ts:1078
 
 > `readonly` **SYNTAX\_ERR**: `12`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6553
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8614
 
 #### Inherited from
 
@@ -342,7 +348,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6553
 
 > `readonly` **TIMEOUT\_ERR**: `23`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6564
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8625
 
 #### Inherited from
 
@@ -354,7 +360,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6564
 
 > `readonly` **TYPE\_MISMATCH\_ERR**: `17`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6558
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8619
 
 #### Inherited from
 
@@ -366,7 +372,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6558
 
 > `readonly` **URL\_MISMATCH\_ERR**: `21`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6562
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8623
 
 #### Inherited from
 
@@ -378,7 +384,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6562
 
 > `readonly` **VALIDATION\_ERR**: `16`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6557
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8618
 
 #### Inherited from
 
@@ -390,7 +396,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6557
 
 > `readonly` **WRONG\_DOCUMENT\_ERR**: `4`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6545
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8606
 
 #### Inherited from
 
@@ -402,7 +408,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6545
 
 > `readonly` `static` **ABORT\_ERR**: `20`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6591
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8652
 
 #### Inherited from
 
@@ -414,7 +420,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6591
 
 > `readonly` `static` **DATA\_CLONE\_ERR**: `25`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6596
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8657
 
 #### Inherited from
 
@@ -426,7 +432,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6596
 
 > `readonly` `static` **DOMSTRING\_SIZE\_ERR**: `2`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6573
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8634
 
 #### Inherited from
 
@@ -438,7 +444,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6573
 
 > `readonly` `static` **HIERARCHY\_REQUEST\_ERR**: `3`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6574
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8635
 
 #### Inherited from
 
@@ -450,7 +456,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6574
 
 > `readonly` `static` **INDEX\_SIZE\_ERR**: `1`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6572
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8633
 
 #### Inherited from
 
@@ -462,7 +468,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6572
 
 > `readonly` `static` **INUSE\_ATTRIBUTE\_ERR**: `10`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6581
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8642
 
 #### Inherited from
 
@@ -474,7 +480,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6581
 
 > `readonly` `static` **INVALID\_ACCESS\_ERR**: `15`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6586
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8647
 
 #### Inherited from
 
@@ -486,7 +492,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6586
 
 > `readonly` `static` **INVALID\_CHARACTER\_ERR**: `5`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6576
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8637
 
 #### Inherited from
 
@@ -498,7 +504,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6576
 
 > `readonly` `static` **INVALID\_MODIFICATION\_ERR**: `13`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6584
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8645
 
 #### Inherited from
 
@@ -510,7 +516,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6584
 
 > `readonly` `static` **INVALID\_NODE\_TYPE\_ERR**: `24`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6595
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8656
 
 #### Inherited from
 
@@ -522,7 +528,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6595
 
 > `readonly` `static` **INVALID\_STATE\_ERR**: `11`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6582
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8643
 
 #### Inherited from
 
@@ -534,7 +540,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6582
 
 > `readonly` `static` **NAMESPACE\_ERR**: `14`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6585
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8646
 
 #### Inherited from
 
@@ -546,7 +552,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6585
 
 > `readonly` `static` **NETWORK\_ERR**: `19`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6590
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8651
 
 #### Inherited from
 
@@ -558,7 +564,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6590
 
 > `readonly` `static` **NO\_DATA\_ALLOWED\_ERR**: `6`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6577
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8638
 
 #### Inherited from
 
@@ -570,7 +576,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6577
 
 > `readonly` `static` **NO\_MODIFICATION\_ALLOWED\_ERR**: `7`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6578
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8639
 
 #### Inherited from
 
@@ -582,7 +588,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6578
 
 > `readonly` `static` **NOT\_FOUND\_ERR**: `8`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6579
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8640
 
 #### Inherited from
 
@@ -594,7 +600,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6579
 
 > `readonly` `static` **NOT\_SUPPORTED\_ERR**: `9`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6580
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8641
 
 #### Inherited from
 
@@ -606,7 +612,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6580
 
 > `readonly` `static` **QUOTA\_EXCEEDED\_ERR**: `22`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6593
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8654
 
 #### Inherited from
 
@@ -618,7 +624,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6593
 
 > `readonly` `static` **SECURITY\_ERR**: `18`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6589
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8650
 
 #### Inherited from
 
@@ -630,7 +636,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6589
 
 > `readonly` `static` **SYNTAX\_ERR**: `12`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6583
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8644
 
 #### Inherited from
 
@@ -642,7 +648,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6583
 
 > `readonly` `static` **TIMEOUT\_ERR**: `23`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6594
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8655
 
 #### Inherited from
 
@@ -654,7 +660,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6594
 
 > `readonly` `static` **TYPE\_MISMATCH\_ERR**: `17`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6588
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8649
 
 #### Inherited from
 
@@ -666,7 +672,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6588
 
 > `readonly` `static` **URL\_MISMATCH\_ERR**: `21`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6592
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8653
 
 #### Inherited from
 
@@ -678,7 +684,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6592
 
 > `readonly` `static` **VALIDATION\_ERR**: `16`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6587
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8648
 
 #### Inherited from
 
@@ -690,7 +696,7 @@ Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6587
 
 > `readonly` `static` **WRONG\_DOCUMENT\_ERR**: `4`
 
-Defined in: node\_modules/typescript/lib/lib.dom.d.ts:6575
+Defined in: node\_modules/.pnpm/typescript@5.9.2/node\_modules/typescript/lib/lib.dom.d.ts:8636
 
 #### Inherited from
 

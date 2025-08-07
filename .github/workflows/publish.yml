@@ -11,31 +11,38 @@ jobs:
     permissions:
       contents: read
       id-token: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-      - name: Setup Node
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          cache: 'npm'
+          # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           node-version: 24
+          cache: 'pnpm'
           registry-url: "https://registry.npmjs.org"
-      
-      - name: Clean install
-        run: npm ci
+
+      - name: Install dependencies
+        run: pnpm install
       
       - name: Run tests
-        run: npm run test
+        run: pnpm test
       
       - name: Build package
-        run: npm run build
+        run: pnpm run build
       
       - name: Publish to jsr
-        run: npx jsr publish
+        run: pnpm dlx jsr publish
       
       - name: Publish to npm
-        run: npm publish --access public
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
